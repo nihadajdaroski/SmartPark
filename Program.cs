@@ -10,7 +10,12 @@ var connectionString = builder.Configuration.GetConnectionString("SmartParkConte
     ?? throw new InvalidOperationException("Connection string 'SmartParkContext' not found.");
 
 builder.Services.AddDbContext<SmartParkContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (builder.Environment.IsDevelopment())
+        options.UseSqlite(connectionString);
+    else
+        options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure());
+});
 
 // Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -28,6 +33,7 @@ builder.Services.AddRazorPages(options =>
 });
 
 builder.Services.AddScoped<SmartPark.Services.IPaymentGateway, SmartPark.Services.DemoPaymentGateway>();
+builder.Services.AddHostedService<ParkingSyncHostedService>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -41,12 +47,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<SmartParkContext>();
+
+    if (db.Database.IsSqlite())
+        await db.Database.EnsureCreatedAsync();
+    else
+        await db.Database.MigrateAsync();
 
     // admin + vloge (+ opcijsko demo parkirišče, če je v SeedAsync še prisotno)
     await DbInitializer.SeedAsync(services);
 
-    // enkratni import iz Overpass -> shrani v DB samo, če je tabela prazna
-    await DbInitializer.SeedOverpassParking(services);
+    // Demo podatki so na voljo takoj; uradni uvoz teče v ozadju.
+    await DbInitializer.EnsureDemoParkingAsync(services);
 }
 
 // Middleware pipeline

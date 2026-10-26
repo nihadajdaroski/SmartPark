@@ -56,5 +56,13 @@ public class SmartParkContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(p => p.RezervacijaId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Parkirisce>()
+            .Property(p => p.CenaNaUro)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Placilo>()
+            .Property(p => p.Znesek)
+            .HasPrecision(18, 2);
     }
 }

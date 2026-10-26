@@ -10,8 +10,12 @@ namespace SmartPark.Data
     {
         private readonly HttpClient _http;
 
-        // bolj stabilen endpoint kot overpass-api.de (ki pogosto timeouta)
-        private const string OverpassInterpreterUrl = "https://overpass.kumi.systems/api/interpreter";
+        private static readonly string[] OverpassInterpreterUrls =
+        {
+            "https://overpass-api.de/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter",
+            "https://overpass.kumi.systems/api/interpreter"
+        };
 
         public OverpassApiHelper(HttpClient http)
         {
@@ -29,35 +33,52 @@ namespace SmartPark.Data
 
         public async Task<List<Parkirisce>> GetParkiriscaLjubljanaAsync()
         {
-            string query = @"[out:json];
-                            area[""name""=""Ljubljana""]->.searchArea;
-                            (
-                              node[""amenity""=""parking""][""name""](area.searchArea);
-                              way[""amenity""=""parking""][""name""](area.searchArea);
-                            );
-                            out center;";
+            string query = @"[out:json][timeout:10];
+                            nwr[""amenity""=""parking""][""access""!~""^(private|no)$""]
+                            (45.98,14.38,46.15,14.70);
+                            out center tags;";
                             
-            using var content = new FormUrlEncodedContent(new[]
+            Exception? lastException = null;
+            foreach (var endpoint in OverpassInterpreterUrls)
             {
-                new KeyValuePair<string, string>("data", query)
-            });
+                try
+                {
+                    using var content = new FormUrlEncodedContent(new[]
+                    {
+                        new KeyValuePair<string, string>("data", query)
+                    });
+                    using var req = new HttpRequestMessage(HttpMethod.Post, endpoint)
+                    {
+                        Content = content
+                    };
+                    req.Headers.Accept.Clear();
+                    req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using var req = new HttpRequestMessage(HttpMethod.Post, OverpassInterpreterUrl)
-            {
-                Content = content
-            };
-            req.Headers.Accept.Clear();
-            req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    using var resp = await _http.SendAsync(req);
+                    var body = await resp.Content.ReadAsStringAsync();
 
-            using var resp = await _http.SendAsync(req);
-            var body = await resp.Content.ReadAsStringAsync();
+                    if (!resp.IsSuccessStatusCode)
+                    {
+                        lastException = new HttpRequestException(
+                            $"Overpass returned {(int)resp.StatusCode} {resp.ReasonPhrase}.");
+                        continue;
+                    }
 
-            if (!resp.IsSuccessStatusCode)
-                throw new HttpRequestException($"Overpass returned {(int)resp.StatusCode} {resp.ReasonPhrase}. Body: {body}");
+                    return ParseParkirisca(body);
+                }
+                catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+                {
+                    lastException = ex;
+                }
+            }
 
+            throw lastException ?? new HttpRequestException("No Overpass endpoint was available.");
+        }
+
+        private static List<Parkirisce> ParseParkirisca(string body)
+        {
             var parkirisca = new List<Parkirisce>();
             using var doc = JsonDocument.Parse(body);
-
             if (!doc.RootElement.TryGetProperty("elements", out var elements))
                 return parkirisca;
 

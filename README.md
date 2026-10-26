@@ -21,25 +21,30 @@ Aplikacija uporablja interaktivni zemljevid z OpenStreetMap in Leaflet, podatkov
 - **SQL Server / Azure SQL**
 - **ASP.NET Core Identity**
 - **Leaflet.js**
-- **OpenStreetMap Overpass API**
+- **Uradne javne strani JP LPT**
+- **OpenStreetMap kot fallback vir**
 
 ## Lokalni zagon
 
 ### Predpogoji
 
-- .NET SDK (LTS)
-- SQL Server, LocalDB ali Azure SQL
+- .NET 8 SDK
+- SQL Server/LocalDB samo za produkcijski profil
 
 ### Namestitev
 
 ```bash
-git clone https://github.com/nihadajdaroski/SmartPark.git
-cd SmartPark
-dotnet ef database update
+dotnet restore
 dotnet run
 ```
 
-Pred zagonom v `appsettings.json` nastavi ustrezen `DefaultConnection` connection string.
+Razvojni profil uporablja lokalno SQLite bazo `smartpark.local.db`, ki se ustvari samodejno.
+Ob zagonu se ustvari demo administrator `admin@smartpark.local` z geslom `Admin!234`.
+Podatki o parkiriščih se po zagonu osvežijo v ozadju iz uradnih javnih strani
+JP LPT. Če LPT ni dosegljiv, se uporabi OpenStreetMap fallback, ob neuspehu obstoječi
+lokalni snapshot oziroma demo parkirišče.
+
+Za produkcijo nastavi `ConnectionStrings:SmartParkContext` v okolju in aplikacijo zaženi z okoljem, ki ni `Development`.
 
 ## Namen projekta
 
