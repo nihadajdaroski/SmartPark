@@ -4,17 +4,16 @@
     ViewData["Title"] = "Registracija";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="sp-auth-shell">
+    <section class="sp-auth-card">
+        <div class="eyebrow">SmartPark račun</div>
+        <h1>Ustvari račun</h1>
+        <p class="intro">Registriraj se in začni upravljati svoje parkirne rezervacije.</p>
 
-<div class="row">
-    <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Ustvari nov račun.</h2>
-            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
-            <div class="form-floating mb-3">
+            <div class="form-floating">
                 <input asp-for="Input.Email"
                        class="form-control"
                        autocomplete="username"
@@ -24,7 +23,7 @@
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
 
-            <div class="form-floating mb-3">
+            <div class="form-floating">
                 <input asp-for="Input.Password"
                        class="form-control"
                        autocomplete="new-password"
@@ -34,7 +33,7 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
 
-            <div class="form-floating mb-3">
+            <div class="form-floating">
                 <input asp-for="Input.ConfirmPassword"
                        class="form-control"
                        autocomplete="new-password"
@@ -44,13 +43,23 @@
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
 
-            <button id="registerSubmit"
-                    type="submit"
-                    class="w-100 btn btn-lg btn-primary">
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">
                 Registriraj se
             </button>
         </form>
-    </div>
+
+        <div class="sp-auth-links">
+            <span>Že imaš račun?</span>
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Prijavi se</a>
+        </div>
+    </section>
+
+    <aside class="sp-auth-aside">
+        <h2>Dobrodošel v SmartParku</h2>
+        <p>Ustvari račun za enostavnejše rezervacije in pregled vseh svojih terminov.</p>
+        <div class="sp-auth-feature">✓ Enostavno upravljanje rezervacij</div>
+        <div class="sp-auth-feature">✓ Pregled zgodovine parkiranja</div>
+    </aside>
 </div>
 
 @section Scripts {

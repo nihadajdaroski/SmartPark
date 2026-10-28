@@ -97,6 +97,13 @@
             font-weight: 700;
         }
 
+        .sp-usercard .role {
+            margin-top: 4px;
+            color: rgba(255, 255, 255, .72);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
         .sp-nav {
             display: flex;
             flex-direction: column;
@@ -121,6 +128,15 @@
 
         .sp-nav a.active {
             background: rgba(255, 255, 255, .18);
+        }
+
+        .sp-nav .sp-nav-heading {
+            margin: 10px 12px 0;
+            color: rgba(255, 255, 255, .62);
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: .08em;
+            text-transform: uppercase;
         }
 
         .sp-sidebar-footer {
@@ -158,6 +174,135 @@
             font-size: 12px;
             color: #6b7280;
             font-weight: 750;
+        }
+
+        .sp-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sp-auth-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 8vh;
+        }
+
+        .sp-auth-shell {
+            width: min(920px, 100%);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 18px;
+        }
+
+        .sp-auth-card,
+        .sp-auth-aside {
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 18px 45px rgba(11, 58, 102, .12);
+        }
+
+        .sp-auth-card {
+            padding: clamp(24px, 5vw, 44px);
+        }
+
+        .sp-auth-card .eyebrow {
+            color: #1d77ff;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .sp-auth-card h1 {
+            margin: 8px 0 8px;
+            color: #0b3a66;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 900;
+        }
+
+        .sp-auth-card .intro {
+            margin-bottom: 26px;
+            color: #64748b;
+            font-weight: 650;
+        }
+
+        .sp-auth-card .form-floating {
+            margin-bottom: 16px !important;
+        }
+
+        .sp-auth-card .form-control {
+            border-radius: 14px;
+            border-color: #dbe5f0;
+        }
+
+        .sp-auth-card .btn-primary {
+            border: 0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            background: #1d77ff;
+            font-weight: 850;
+        }
+
+        .sp-auth-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px 18px;
+            margin-top: 22px;
+            font-weight: 750;
+        }
+
+        .sp-auth-links a {
+            color: #1d64c8;
+            text-decoration: none;
+        }
+
+        .sp-auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sp-auth-aside {
+            padding: 28px;
+            color: #fff;
+            background: linear-gradient(160deg, #0b3a66, #155b93);
+        }
+
+        .sp-auth-aside h2 {
+            margin: 0 0 12px;
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .sp-auth-aside p {
+            color: rgba(255, 255, 255, .78);
+            line-height: 1.6;
+        }
+
+        .sp-auth-aside .sp-auth-feature {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+            color: rgba(255, 255, 255, .9);
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .sp-content > * {
+            animation: sp-page-enter .18s ease-out;
+        }
+
+        @@keyframes sp-page-enter {
+            from {
+                opacity: .72;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .sp-search {
@@ -198,6 +343,14 @@
             .sp-topbar {
                 grid-template-columns: 1fr;
             }
+
+            .sp-auth-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sp-auth-aside {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -212,13 +365,17 @@
             </a>
 
             <div class="sp-usercard">
-                <p class="name">@(User.Identity?.IsAuthenticated == true ? (User.Identity?.Name ?? "Uporabnik") :
-                                        "Gost")</p>
+                <p class="name">@(User.Identity?.IsAuthenticated == true ? (User.Identity?.Name ?? "Uporabnik") : "Gost")</p>
                 <div class="sub">Nadzorna plošča</div>
+                @if (User.IsInRole("Administrator"))
+                {
+                    <div class="role">Administrator</div>
+                }
             </div>
 
             @{
                 var path = (Context.Request.Path.Value ?? "").ToLowerInvariant();
+                var isAuthPage = path == "/identity/account/login" || path == "/identity/account/register";
 
                 string ActiveExact(string exact) =>
                 path == exact.ToLowerInvariant() ? "active" : "";
@@ -227,40 +384,55 @@
                 path.StartsWith(prefix.ToLowerInvariant()) ? "active" : "";
             }
 
-            <nav class="sp-nav">
-                <a class="@ActiveExact("/")" asp-controller="Home" asp-action="Index">Domov</a>
+            @if (!isAuthPage)
+            {
+                <nav class="sp-nav">
+                    <a class="@ActiveExact("/")" asp-controller="Home" asp-action="Index" data-sp-nav>Domov</a>
 
-                @if (User.Identity?.IsAuthenticated ?? false)
-                {
-                    <a class="@ActivePrefix("/rezervacije")" asp-controller="Rezervacije" asp-action="Index">Moje rezervacije</a>
-                }
+                    @if ((User.Identity?.IsAuthenticated ?? false) && !User.IsInRole("Administrator"))
+                    {
+                        <a class="@ActivePrefix("/rezervacije")" asp-controller="Rezervacije" asp-action="Index" data-sp-nav>Moje rezervacije</a>
+                    }
 
-                @if (User.IsInRole("Administrator"))
-                {
-                    <a class="@ActivePrefix("/admin/parkirisca")" href="/admin/parkirisca">Admin panel</a>
-                }
-            </nav>
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <div class="sp-nav-heading">Administracija</div>
+                        <a class="@ActivePrefix("/admin/parkirisca")" href="/admin/parkirisca" data-sp-nav>Parkirišča</a>
+                        <a class="@ActivePrefix("/admin/rezervacije")" href="/admin/rezervacije" data-sp-nav>Rezervacije</a>
+                        <a class="@ActivePrefix("/admin/placila")" href="/admin/placila" data-sp-nav>Plačila</a>
+                    }
+                </nav>
+            }
 
-            <div class="sp-sidebar-footer sp-loginpartial">
-                <partial name="_LoginPartial" />
-            </div>
+            @if (!isAuthPage)
+            {
+                <div class="sp-sidebar-footer sp-loginpartial">
+                    <partial name="_LoginPartial" />
+                </div>
+            }
+
         </aside>
 
-        <main class="sp-content">
-            <div class="sp-topbar">
-                <div>
-                    <h1>@ViewData["Title"]</h1>
-                    <p class="subtitle">Dobrodošel!</p>
-                </div>
+        <main class="sp-content @(isAuthPage ? "sp-auth-content" : "")">
+            @if (!isAuthPage)
+            {
+                <div class="sp-topbar">
+                    <div>
+                        <h1>@ViewData["Title"]</h1>
+                        <p class="subtitle">Dobrodošel!</p>
+                    </div>
 
-                <div style="font-size:12px; color:#6b7280; font-weight:850;">
-                    @DateTime.Now.ToString("yyyy-MM-dd")
+                    <div style="font-size:12px; color:#6b7280; font-weight:850;">
+                        @DateTime.Now.ToString("yyyy-MM-dd")
+                    </div>
+                    <div class="sp-topbar-actions">
+                        @RenderSection("TopActions", required: false)
+                    </div>
                 </div>
-            </div>
+            }
 
             @RenderBody()
         </main>
-
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -270,6 +442,17 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("click", function (event) {
+            const link = event.target.closest("a[data-sp-nav]");
+            if (!link || event.defaultPrevented || event.button !== 0 ||
+                event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            document.querySelector(".sp-content")?.classList.add("sp-navigating");
+        });
+    </script>
 </body>
 
 </html>

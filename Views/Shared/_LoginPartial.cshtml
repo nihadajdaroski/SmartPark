@@ -3,8 +3,6 @@
 @inject UserManager<SmartPark.Models.ApplicationUser> UserManager
 
 @{
-    var path = (Context.Request.Path.Value ?? "").ToLowerInvariant();
-    var isManage = path.StartsWith("/identity/account/manage");
 }
 
 <style>
@@ -47,21 +45,11 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li>
-        <a class="sp-pill" href="/Identity/Account/Manage">
-            @User.Identity?.Name
-        </a>
+        <form id="logoutForm" action="/Identity/Account/Logout?returnUrl=%2F" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="sp-logout-btn">Odjava</button>
+        </form>
     </li>
-
-    
-    @if (isManage)
-    {
-        <li>
-            <form id="logoutForm" action="/Identity/Account/Logout?returnUrl=%2F" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="sp-logout-btn">Odjava</button>
-            </form>
-        </li>
-    }
 }
 else
 {
