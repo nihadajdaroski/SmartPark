@@ -323,3 +323,501 @@ body {
     font-size: 12px;
     margin-top: 6px;
 }
+
+/* Clean Attio-inspired overrides */
+:root {
+    --clean-primary: #4f46e5;
+    --clean-primary-active: #4338ca;
+    --smartpark-blue: #1d77ff;
+    --smartpark-blue-soft: #eaf3ff;
+    --clean-accent: #16a34a;
+    --clean-ink: #1b2130;
+    --clean-text: #1b2130;
+    --clean-body: #5b6274;
+    --clean-muted: #6b7280;
+    --clean-line: #e2e5eb;
+    --clean-surface: #f5f6f8;
+    --clean-surface-strong: #eef0f4;
+}
+
+body.smartpark-body {
+    background: var(--clean-surface) !important;
+    color: var(--clean-text);
+    font-family: Inter, sans-serif;
+}
+
+body.smartpark-body h1,
+body.smartpark-body h2,
+body.smartpark-body h3,
+body.smartpark-body h4,
+body.smartpark-body h5,
+body.smartpark-body h6 {
+    font-family: Inter, sans-serif;
+    letter-spacing: -.32px;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(38, 109, 240, .16) !important;
+}
+
+.sp-sidebar {
+    background: #fff !important;
+    color: var(--clean-text) !important;
+    border-right: 1px solid #dfe3f5;
+    box-shadow: none !important;
+}
+
+.sp-brand {
+    color: var(--clean-ink) !important;
+    font-weight: 600 !important;
+}
+
+.sp-avatar {
+    background: var(--smartpark-blue) !important;
+    border-radius: 8px !important;
+    color: #fff;
+    font-weight: 600 !important;
+}
+
+.sp-profile-avatar {
+    background: var(--smartpark-blue) !important;
+}
+
+.sp-usercard,
+.sp-sidebar-footer {
+    background: rgba(255, 255, 255, .72) !important;
+    border: 1px solid rgba(79, 70, 229, .12);
+    border-radius: 10px !important;
+}
+
+.sp-usercard .name,
+.sp-sidebar-meta strong {
+    color: var(--clean-text) !important;
+    font-weight: 500 !important;
+}
+
+.sp-usercard .sub,
+.sp-usercard .role,
+.sp-sidebar-meta {
+    color: var(--clean-muted) !important;
+    font-weight: 400 !important;
+}
+
+.sp-nav {
+    gap: 2px !important;
+}
+
+.sp-nav a {
+    color: var(--clean-text) !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+}
+
+.sp-nav a:hover,
+.sp-nav a.active {
+    background: var(--smartpark-blue-soft) !important;
+    color: var(--smartpark-blue) !important;
+}
+
+.sp-nav .sp-nav-heading {
+    color: var(--clean-muted) !important;
+    font-weight: 500 !important;
+}
+
+.sp-topbar {
+    border-radius: 0 !important;
+    border-bottom: 1px solid var(--clean-line);
+    box-shadow: none !important;
+}
+
+.sp-topbar h1,
+.sp-auth-card h1,
+.sp-auth-aside h2,
+.sp-profile-header h2 {
+    color: var(--clean-ink) !important;
+    font-weight: 600 !important;
+}
+
+.sp-topbar .subtitle,
+.sp-auth-card .intro,
+.sp-profile-header p {
+    color: var(--clean-body) !important;
+    font-weight: 400 !important;
+}
+
+.sp-card,
+.sp-profile-card,
+.sp-auth-card,
+.sp-auth-aside {
+    border: 1px solid var(--clean-line);
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.sp-auth-aside {
+    color: var(--clean-text) !important;
+    background: var(--clean-surface-strong) !important;
+}
+
+.sp-auth-aside p,
+.sp-auth-aside .sp-auth-feature {
+    color: var(--clean-body) !important;
+    font-weight: 400 !important;
+}
+
+.sp-auth-card .eyebrow {
+    color: var(--clean-muted) !important;
+    font-weight: 500 !important;
+}
+
+.sp-auth-card .form-control,
+.sp-input,
+.sp-search,
+.sp-profile-card .form-control {
+    border-color: var(--clean-line) !important;
+    border-radius: 8px !important;
+    box-shadow: none;
+}
+
+.sp-auth-card .btn-primary,
+.btn-sp-primary {
+    background: var(--clean-primary) !important;
+    border-color: var(--clean-primary) !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+}
+
+.sp-auth-card .btn-primary:hover,
+.btn-sp-primary:hover {
+    background: var(--clean-primary-active) !important;
+    border-color: var(--clean-primary-active) !important;
+}
+
+.sp-auth-links a,
+.sp-auth-card .eyebrow {
+    color: var(--clean-primary) !important;
+}
+
+.sp-auth-links a:hover {
+    color: var(--clean-primary-active) !important;
+}
+
+.btn-sp-ghost,
+.btn-outline-secondary {
+    background: #fff !important;
+    border: 1px solid var(--clean-line) !important;
+    color: var(--clean-text) !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+}
+
+.btn-sp-danger,
+.btn-outline-danger {
+    background: #fff !important;
+    border: 1px solid #cad0d9 !important;
+    color: #672322 !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
+}
+
+.alert {
+    border: 1px solid var(--clean-line) !important;
+    border-radius: 10px !important;
+    background: var(--clean-surface-strong) !important;
+    color: var(--clean-text) !important;
+}
+
+.modal-content {
+    border: 1px solid var(--clean-line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 24px rgba(28, 40, 64, .08) !important;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--clean-line) !important;
+}
+
+.modal-title {
+    color: var(--clean-ink);
+    font-weight: 600;
+}
+
+.sp-auth-links,
+.sp-loginpartial a,
+.sp-loginpartial button {
+    font-weight: 500 !important;
+}
+
+.sp-table th,
+.sp-label,
+.sp-profile-section-title {
+    font-weight: 500 !important;
+}
+
+.sp-table td {
+    background: #fff !important;
+}
+
+.sp-card [style*="font-weight"],
+.sp-table td[style*="font-weight"] {
+    font-weight: 500 !important;
+}
+
+.sp-card [style*="color:#6b7280"] {
+    color: var(--clean-muted) !important;
+}
+
+.sp-password-card {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(24px, 5vw, 40px);
+    border: 1px solid var(--clean-line);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.sp-password-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.sp-password-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 10px;
+    background: #e0e7ff;
+    color: var(--clean-primary);
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.sp-password-eyebrow {
+    color: var(--clean-primary);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.sp-password-header h2 {
+    margin: 4px 0 6px;
+    color: var(--clean-ink);
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.sp-password-header p {
+    margin: 0;
+    color: var(--clean-body);
+}
+
+.sp-password-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.sp-password-full {
+    grid-column: 1 / -1;
+}
+
+.sp-password-form-grid .form-control {
+    border-color: var(--clean-line);
+    border-radius: 8px;
+}
+
+.sp-password-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--clean-line);
+}
+
+.sp-password-actions .btn-primary {
+    background: var(--clean-primary);
+    border-color: var(--clean-primary);
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.sp-password-actions .btn-primary:hover {
+    background: var(--clean-primary-active);
+    border-color: var(--clean-primary-active);
+}
+
+.card.shadow-sm {
+    border: 1px solid var(--clean-line) !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+
+.card.shadow-sm strong {
+    font-weight: 500;
+}
+
+.sp-reservations-page {
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.sp-reservation-card {
+    height: 100%;
+    padding: 20px;
+    border: 1px solid var(--clean-line);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.sp-reservation-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.sp-reservation-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--clean-muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.sp-reservation-card h2 {
+    max-width: 260px;
+    margin: 0;
+    color: var(--clean-ink);
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.sp-reservation-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sp-reservation-status.is-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.sp-reservation-status.is-upcoming {
+    background: #eaf3ff;
+    color: var(--smartpark-blue);
+}
+
+.sp-reservation-status.is-expired {
+    background: #fef2f2;
+    color: #b42318;
+}
+
+.sp-reservation-details {
+    display: grid;
+    grid-template-columns: minmax(64px, .7fr) minmax(0, 1.15fr) minmax(0, 1.15fr);
+    gap: 10px;
+}
+
+.sp-reservation-details div {
+    min-width: 0;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--clean-surface);
+}
+
+.sp-reservation-details span,
+.sp-reservation-details strong {
+    display: block;
+}
+
+.sp-reservation-details span {
+    margin-bottom: 5px;
+    color: var(--clean-muted);
+    font-size: 11px;
+}
+
+.sp-reservation-details strong {
+    overflow: hidden;
+    color: var(--clean-text);
+    font-size: 12px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+.sp-reservation-actions {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--clean-line);
+}
+
+.sp-reservation-actions form {
+    margin: 0;
+}
+
+.sp-reservation-actions .btn {
+    width: 100%;
+}
+
+.sp-badge {
+    border-radius: 8px !important;
+    background: #eef0f4 !important;
+    color: var(--clean-text) !important;
+    font-weight: 500 !important;
+}
+
+.sp-content > * {
+    animation: none !important;
+}
+
+.sp-mobile-menu-toggle {
+    background: #fff !important;
+    color: var(--clean-ink) !important;
+    border: 1px solid var(--clean-line) !important;
+    box-shadow: none !important;
+}
+
+.sp-sidebar-backdrop {
+    background: rgba(0, 0, 0, .18) !important;
+}
+
+@media (max-width: 700px) {
+    .sp-password-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sp-password-full {
+        grid-column: auto;
+    }
+
+    .sp-reservation-card-header {
+        flex-direction: column;
+    }
+
+    .sp-reservation-details {
+        grid-template-columns: 1fr;
+    }
+}

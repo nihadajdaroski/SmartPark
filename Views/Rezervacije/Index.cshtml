@@ -1,8 +1,10 @@
 @model List<SmartPark.Models.Rezervacija>
 
-<div class="container py-4">
-    <h2 class="mb-3">Moje rezervacije</h2>
+@{
+    ViewData["Title"] = "Moje rezervacije";
+}
 
+<div class="sp-reservations-page">
     @if (!Model.Any())
     {
         <div class="alert alert-info">Trenutno nimaš rezervacij.</div>
@@ -16,46 +18,55 @@
                 var jeAktivno = r.Zacetek <= DateTime.Now && r.Konec >= DateTime.Now;
 
                 <div class="col">
-                    <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f7f9fc, #eef3ff);">
-                        <div class="card-body">
-                            <h5 class="card-title">@r.Parkirisce?.Naslov</h5>
-
-                            <p class="card-text mb-2">
-                                <strong>Mesto:</strong> @r.ParkirnoMesto?.Stevilka<br />
-                                <strong>Začetek:</strong> @r.Zacetek.ToString("dd.MM.yyyy HH:mm")<br />
-                                <strong>Konec:</strong> @r.Konec.ToString("dd.MM.yyyy HH:mm")<br />
-
-                                @if (jePreteklo)
-                                {
-                                    <span class="badge bg-danger">Poteklo</span>
-                                }
-                                else if (jeAktivno)
-                                {
-                                    <span class="badge bg-success">Aktivno</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Še ni začelo</span>
-                                }
-                            </p>
-
-                            @* NOVO: akcije *@
-                            <div class="d-flex gap-2">
-                                @if (!jePreteklo)
-                                {
-                                    <form method="post" asp-controller="Rezervacije" asp-action="Cancel" asp-route-id="@r.Id" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit"
-                                                class="btn btn-outline-danger btn-sm"
-                                                onclick="return confirm('Ali res želiš preklicati rezervacijo?');">
-                                            Prekliči
-                                        </button>
-                                    </form>
-                                }
+                    <article class="sp-reservation-card">
+                        <div class="sp-reservation-card-header">
+                            <div>
+                                <span class="sp-reservation-label">Rezervacija #@r.Id</span>
+                                <h2>@(r.Parkirisce?.Naslov ?? "Neznano parkirišče")</h2>
                             </div>
-
+                            @if (jePreteklo)
+                            {
+                                <span class="sp-reservation-status is-expired">Poteklo</span>
+                            }
+                            else if (jeAktivno)
+                            {
+                                <span class="sp-reservation-status is-active">Aktivno</span>
+                            }
+                            else
+                            {
+                                <span class="sp-reservation-status is-upcoming">Prihajajoče</span>
+                            }
                         </div>
-                    </div>
+
+                        <div class="sp-reservation-details">
+                            <div>
+                                <span>Mesto</span>
+                                <strong>@(r.ParkirnoMesto?.Stevilka.ToString() ?? "-")</strong>
+                            </div>
+                            <div>
+                                <span>Začetek</span>
+                                <strong>@r.Zacetek.ToString("dd.MM.yyyy HH:mm")</strong>
+                            </div>
+                            <div>
+                                <span>Konec</span>
+                                <strong>@r.Konec.ToString("dd.MM.yyyy HH:mm")</strong>
+                            </div>
+                        </div>
+
+                        @if (!jePreteklo)
+                        {
+                            <div class="sp-reservation-actions">
+                                <form method="post" asp-controller="Rezervacije" asp-action="Cancel" asp-route-id="@r.Id">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Ali res želiš preklicati rezervacijo?');">
+                                        Prekliči rezervacijo
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </article>
                 </div>
             }
         </div>
