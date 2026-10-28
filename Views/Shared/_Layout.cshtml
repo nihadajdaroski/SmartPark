@@ -289,6 +289,65 @@
             font-weight: 750;
         }
 
+        .sp-profile-card {
+            max-width: 860px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 18px 45px rgba(11, 58, 102, .12);
+            padding: clamp(24px, 5vw, 42px);
+        }
+
+        .sp-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .sp-profile-avatar {
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #1d77ff, #155b93);
+            color: #fff;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .sp-profile-header h2 {
+            margin: 0;
+            color: #0b3a66;
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .sp-profile-header p {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .sp-profile-section-title {
+            margin: 0 0 14px;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .sp-profile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 22px;
+            border-top: 1px solid #e8eef5;
+        }
+
         .sp-content > * {
             animation: sp-page-enter .18s ease-out;
         }
@@ -392,6 +451,11 @@
                     @if ((User.Identity?.IsAuthenticated ?? false) && !User.IsInRole("Administrator"))
                     {
                         <a class="@ActivePrefix("/rezervacije")" asp-controller="Rezervacije" asp-action="Index" data-sp-nav>Moje rezervacije</a>
+                    }
+
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a class="@ActivePrefix("/identity/account/manage")" href="/Identity/Account/Manage" data-sp-nav>Moj profil</a>
                     }
 
                     @if (User.IsInRole("Administrator"))

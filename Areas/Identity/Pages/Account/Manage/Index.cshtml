@@ -5,46 +5,48 @@
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-
 <partial name="_StatusMessage" for="StatusMessage" />
 
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Username"
-                       class="form-control"
-                       placeholder="Izberite svoje uporabniško ime."
-                       disabled />
-                <label asp-for="Username" class="form-label"></label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber"
-                       class="form-control"
-                       placeholder="Vnesite svojo telefonsko številko." />
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Input.RegistrskaStevilka"
-                       class="form-control"
-                       placeholder="Vnesi registrsko številko" />
-                <label asp-for="Input.RegistrskaStevilka" class="form-label"></label>
-                <span asp-validation-for="Input.RegistrskaStevilka" class="text-danger"></span>
-            </div>
-
-            <button id="update-profile-button"
-                    type="submit"
-                    class="w-100 btn btn-lg btn-primary">
-                Shrani
-            </button>
-        </form>
+<div class="sp-profile-card">
+    <div class="sp-profile-header">
+        <div class="sp-profile-avatar">@(Model.Username?.FirstOrDefault().ToString().ToUpperInvariant() ?? "U")</div>
+        <div>
+            <h2>Uredi svoj profil</h2>
+            <p>Posodobi podatke, ki jih uporablja tvoj SmartPark račun.</p>
+        </div>
     </div>
+
+    <form id="profile-form" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+        <h3 class="sp-profile-section-title">Osnovni podatki</h3>
+
+        <div class="mb-3">
+            <label asp-for="Username" class="form-label fw-bold">Uporabniško ime</label>
+            <input asp-for="Username" class="form-control" disabled />
+            <div class="form-text">Uporabniškega imena ni mogoče spreminjati.</div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.PhoneNumber" class="form-label fw-bold"></label>
+            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Vnesi telefonsko številko" />
+            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Input.RegistrskaStevilka" class="form-label fw-bold"></label>
+            <input asp-for="Input.RegistrskaStevilka" class="form-control" placeholder="Vnesi registrsko številko" />
+            <span asp-validation-for="Input.RegistrskaStevilka" class="text-danger"></span>
+        </div>
+
+        <div class="sp-profile-actions">
+            <button id="update-profile-button" type="submit" class="btn btn-primary px-4">
+                Shrani spremembe
+            </button>
+            <a class="btn btn-light" asp-page="./ChangePassword">Spremeni geslo</a>
+            <a class="btn btn-light" asp-controller="Home" asp-action="Index">Nazaj na zemljevid</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
