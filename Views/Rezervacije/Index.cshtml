@@ -24,18 +24,40 @@
                                 <span class="sp-reservation-label">Rezervacija #@r.Id</span>
                                 <h2>@(r.Parkirisce?.Naslov ?? "Neznano parkirišče")</h2>
                             </div>
-                            @if (jePreteklo)
-                            {
-                                <span class="sp-reservation-status is-expired">Poteklo</span>
-                            }
-                            else if (jeAktivno)
-                            {
-                                <span class="sp-reservation-status is-active">Aktivno</span>
-                            }
-                            else
-                            {
-                                <span class="sp-reservation-status is-upcoming">Prihajajoče</span>
-                            }
+                            <div class="sp-reservation-header-actions">
+                                @if (jePreteklo)
+                                {
+                                    <span class="sp-reservation-status is-expired">Poteklo</span>
+                                }
+                                else if (jeAktivno)
+                                {
+                                    <span class="sp-reservation-status is-active">Aktivno</span>
+                                }
+                                else
+                                {
+                                    <span class="sp-reservation-status is-upcoming">Prihajajoče</span>
+                                }
+                                @if (jeAktivno)
+                                {
+                                    <button type="button"
+                                            class="btn btn-primary btn-sm sp-qr-trigger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#qrCodeModal"
+                                            title="Prikaži vstopno QR-kodo"
+                                            aria-label="Prikaži vstopno QR-kodo"
+                                            data-reservation-id="@r.Id"
+                                            data-parking-name="@(r.Parkirisce?.Naslov ?? "Neznano parkirišče")"
+                                            data-seat-number="@(r.ParkirnoMesto?.Stevilka.ToString() ?? "-")">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" />
+                                        </svg>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="sp-reservation-status is-upcoming">Prihajajoče</span>
+                                }
+                            </div>
                         </div>
 
                         <div class="sp-reservation-details">
@@ -70,5 +92,55 @@
                 </div>
             }
         </div>
+
+        <div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content sp-qr-modal">
+                    <div class="modal-header">
+                        <div>
+                            <span class="sp-payment-eyebrow">Vstop v parkirišče</span>
+                            <h2 class="modal-title h5 mb-0" id="qrCodeModalLabel">Vstopna QR-koda</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zapri"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="sp-qr-description">Demo kodo pokaži ali skeniraj pri vstopu v parkirišče.</p>
+                        <div class="sp-qr-code-frame">
+                            <img id="reservationQrCode" src="" alt="QR-koda za vstop v parkirišče" />
+                        </div>
+                        <div class="sp-qr-meta">
+                            <strong id="qrParkingName">-</strong>
+                            <span id="qrReservationDetails">Rezervacija #-, mesto -</span>
+                        </div>
+                        <small class="text-muted">Koda je namenjena demonstraciji in ne odpira dejanskih zapornic.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script>
+                const qrCodeModal = document.getElementById("qrCodeModal");
+
+                if (qrCodeModal) {
+                    qrCodeModal.addEventListener("show.bs.modal", function (event) {
+                        const button = event.relatedTarget;
+                        const reservationId = button.getAttribute("data-reservation-id");
+                        const parkingName = button.getAttribute("data-parking-name");
+                        const seatNumber = button.getAttribute("data-seat-number");
+
+                        document.getElementById("reservationQrCode").src =
+                            `/Rezervacije/DemoQrCode/${reservationId}`;
+                        document.getElementById("qrParkingName").textContent = parkingName;
+                        document.getElementById("qrReservationDetails").textContent =
+                            `Rezervacija #${reservationId}, mesto ${seatNumber}`;
+                    });
+
+                    qrCodeModal.addEventListener("hidden.bs.modal", function () {
+                        document.getElementById("reservationQrCode").src = "";
+                    });
+                }
+            </script>
+        }
     }
 </div>

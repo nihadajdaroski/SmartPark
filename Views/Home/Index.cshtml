@@ -34,38 +34,85 @@
                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zapri"></button>
             </div>
             <div class="modal-body">
+               <div class="sp-reservation-stepper" aria-label="Koraki rezervacije">
+                  <div class="is-active" data-step-indicator="1"><span>1</span><strong>Termin</strong></div>
+                  <div data-step-indicator="2"><span>2</span><strong>Mesto</strong></div>
+                  <div data-step-indicator="3"><span>3</span><strong>Povzetek</strong></div>
+               </div>
+
                <input type="hidden" id="parkId" name="ParkirisceId" />
                <input type="hidden" id="parkPrice" />
                <input type="hidden" id="parkirnoMestoId" name="ParkirnoMestoId" />
-               <div class="mb-3">
-                  <label class="form-label">Parkirišče</label>
-                  <input type="text" id="parkNaslov" class="form-control" readonly />
+
+               <div class="sp-reservation-step" data-reservation-step="1">
+                  <div class="sp-reservation-location">
+                     <span>Parkirišče</span>
+                     <strong id="parkNaslov"></strong>
+                  </div>
+                  <div class="sp-reservation-time-grid">
+                     <div class="mb-3">
+                        <label class="form-label" for="startTime">Začetek</label>
+                        <input type="datetime-local" id="startTime" name="DatumZacetka" class="form-control" required />
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label" for="endTime">Konec</label>
+                        <input type="datetime-local" id="endTime" name="DatumKonca" class="form-control" required />
+                     </div>
+                  </div>
+                  <div id="reservationStepError" class="text-danger small" role="alert"></div>
                </div>
-               <div class="mb-3">
-                  <label class="form-label">Začetek</label>
-                  <input type="datetime-local" id="startTime" name="DatumZacetka" class="form-control" required />
+
+               <div class="sp-reservation-step d-none" data-reservation-step="2">
+                  <div id="seatPicker" class="sp-seat-picker mb-3 d-none">
+                     <div class="sp-seat-picker-header">
+                        <div>
+                           <label class="form-label mb-1">Izberi parkirno mesto</label>
+                           <p class="sp-seat-picker-help mb-0">Izbira je na voljo za manjša parkirišča.</p>
+                        </div>
+                        <span id="seatPickerCount" class="sp-seat-picker-count"></span>
+                     </div>
+                     <div id="seatGrid" class="sp-seat-grid" role="group" aria-label="Parkirna mesta"></div>
+                  </div>
+                  <div class="sp-seat-auto-note d-none" id="seatAutoNote">
+                     Za to parkirišče bo sistem izbral prvo prosto mesto.
+                  </div>
+                  <div class="alert alert-info py-2 mb-0" id="availabilityInfo">
+                     Izberi prosto mesto za nadaljevanje.
+                  </div>
                </div>
-               <div class="mb-3">
-                  <label class="form-label">Konec</label>
-                  <input type="datetime-local" id="endTime" name="DatumKonca" class="form-control" required />
-               </div>
-               <div class="mb-3">
-                  <label class="form-label">Cena na uro</label>
-                  <input type="text" id="parkCena" class="form-control" readonly />
-               </div>
-               <div class="mb-3">
-                  <label class="form-label">Skupna cena</label>
-                  <input type="text" id="totalPrice" class="form-control" readonly value="0.00 €" />
-               </div>
-               <div class="alert alert-info py-2 mb-0" id="availabilityInfo">
-                  Izberi začetek in konec za preverjanje prostih mest.
+
+               <div class="sp-reservation-step d-none" data-reservation-step="3">
+                  <div class="sp-reservation-summary">
+                     <div>
+                        <span>Parkirišče</span>
+                        <strong id="summaryParking"></strong>
+                     </div>
+                     <div>
+                        <span>Termin</span>
+                        <strong id="summaryTime"></strong>
+                     </div>
+                     <div>
+                        <span>Parkirno mesto</span>
+                        <strong id="summarySeat"></strong>
+                     </div>
+                     <div>
+                        <span>Cena na uro</span>
+                        <strong id="parkCena"></strong>
+                     </div>
+                     <div class="sp-reservation-summary-total">
+                        <span>Skupna cena</span>
+                        <strong id="totalPrice">0.00 €</strong>
+                     </div>
+                  </div>
                </div>
             </div>
             <div class="modal-footer">
-               <!-- NOVO: cancel gumb -->
+               <button type="button" class="btn btn-light d-none" id="reservationBackBtn">Nazaj</button>
                <button type="button" class="btn btn-outline-secondary" id="cancelRezervacijaBtn">Prekliči</button>
-               <!-- submit gumb: bo disable dokler ni prostega mesta -->
-               <button type="submit" class="btn btn-primary" id="submitRezervacijaBtn" disabled>Rezerviraj</button>
+               <button type="button" class="btn btn-primary" id="reservationNextBtn">Naprej</button>
+               <button type="submit" class="btn btn-primary d-none" id="submitRezervacijaBtn" disabled>
+                  Nadaljuj na plačilo
+               </button>
             </div>
          </form>
       </div>
@@ -73,49 +120,70 @@
 </div>
 <!-- Modal za plačilo -->
 <div class="modal fade" id="placiloModal" tabindex="-1" aria-hidden="true">
-   <div class="modal-dialog">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title">Plačilo rezervacije</h5>
+   <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content sp-payment-modal">
+         <div class="modal-header sp-payment-header">
+            <div>
+               <span class="sp-payment-eyebrow">Zaključi rezervacijo</span>
+               <h5 class="modal-title">Plačilo rezervacije</h5>
+               <p class="sp-payment-subtitle mb-0">Plačilo je varno in trenutno poteka v demo načinu.</p>
+            </div>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zapri"></button>
          </div>
          <div class="modal-body">
             <input type="hidden" id="rezervacijaIdHidden" />
-            <div class="mb-3">
-               <label class="form-label">Način plačila</label>
-               <select id="paymentMethod" class="form-select">
-                  <option value="card">Bančna kartica</option>
-                  <option value="nalog">Plačilni nalog</option>
-               </select>
-            </div>
-            
-            <div id="cardFields" style="display:none;">
-               <div class="mb-2">
-                  <label class="form-label">Ime na kartici</label>
-                  <input id="cardName" class="form-control" autocomplete="cc-name" />
-               </div>
-               <div class="mb-2">
-                  <label class="form-label">Številka kartice</label>
-                  <input id="cardNumber" class="form-control" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456" />
-               </div>
-               <div class="row">
-                  <div class="col-6 mb-2">
-                     <label class="form-label">Veljavnost (MM/YY)</label>
-                     <input id="cardExp" class="form-control" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" />
-                  </div>
-                  <div class="col-6 mb-2">
-                     <label class="form-label">CVV</label>
-                     <input id="cardCvv" class="form-control" inputmode="numeric" autocomplete="cc-csc" placeholder="123" />
+            <div class="sp-payment-layout">
+               <div class="sp-payment-summary">
+                  <span class="sp-payment-eyebrow">Način plačila</span>
+                  <label class="form-label" for="paymentMethod">Izberi način</label>
+                  <select id="paymentMethod" class="form-select">
+                     <option value="card">Bančna kartica</option>
+                     <option value="nalog">Plačilni nalog</option>
+                  </select>
+                  <div class="sp-payment-note">
+                     <span aria-hidden="true">✓</span>
+                     Podatki se uporabljajo samo za predstavitev plačilnega koraka.
                   </div>
                </div>
-               <div class="small text-muted">
-                  Opomba: To je demo validacija (ne izvaja prave transakcije).
+
+               <div id="cardFields" class="sp-card-payment-fields" style="display:none;">
+                  <div class="sp-payment-card-preview">
+                     <div class="sp-payment-card-brand">SMARTPARK</div>
+                     <div id="cardPreviewNumber" class="sp-payment-card-number">1234 5678 9012 3456</div>
+                     <div class="sp-payment-card-footer">
+                        <span>VARNOSTNO PLAČILO</span>
+                        <strong>VISA</strong>
+                     </div>
+                  </div>
+                  <div class="sp-payment-fields">
+                     <div class="mb-3">
+                        <label class="form-label" for="cardName">Ime na kartici</label>
+                        <input id="cardName" class="form-control" autocomplete="cc-name" maxlength="50" placeholder="JANEZ NOVAK" required />
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label" for="cardNumber">Številka kartice</label>
+                        <input id="cardNumber" class="form-control" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 9012 3456" required />
+                     </div>
+                     <div class="row">
+                        <div class="col-6 mb-3">
+                           <label class="form-label" for="cardExp">Veljavnost (MM/YY)</label>
+                           <input id="cardExp" class="form-control" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" required />
+                        </div>
+                        <div class="col-6 mb-3">
+                           <label class="form-label" for="cardCvv">CVV</label>
+                           <input id="cardCvv" class="form-control" inputmode="numeric" autocomplete="cc-csc" maxlength="3" placeholder="123" required />
+                        </div>
+                     </div>
+                  </div>
+                  <div class="small text-muted">
+                     Demo validacija ne izvede prave transakcije.
+                  </div>
                </div>
             </div>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Prekliči</button>
-            <button type="button" class="btn btn-success" onclick="simulatePayment()">Plačaj</button>
+            <button type="button" class="btn btn-primary sp-payment-submit" onclick="simulatePayment()">Plačaj</button>
          </div>
       </div>
    </div>
@@ -139,6 +207,10 @@
         }
     ));
 
+    const seatPickerLimit = 40;
+    let activeParking = null;
+    let availableSeatIds = [];
+
     function setAvailability(message, type) {
         const el = document.getElementById('availabilityInfo');
         const btn = document.getElementById('submitRezervacijaBtn');
@@ -149,7 +221,8 @@
 
         // enable submit samo, če imamo veljavno mestoId
         const mestoId = document.getElementById('parkirnoMestoId').value;
-        btn.disabled = (!mestoId || mestoId === "0");
+        const hasTimes = document.getElementById('startTime').value && document.getElementById('endTime').value;
+        btn.disabled = (!mestoId || mestoId === "0" || !hasTimes || type === 'bad');
     }
 
     async function fetchProstoMesto() {
@@ -157,11 +230,17 @@
         var start = document.getElementById('startTime').value;
         var end = document.getElementById('endTime').value;
 
-        // reset pri nepopolnih podatkih
-        document.getElementById('parkirnoMestoId').value = "0";
+        const parking = parkirisca.find(x => x.Id.toString() === parkId.toString());
+        const usesSeatPicker = parking && (parking.ParkirnaMesta?.length || 0) > 0 &&
+            parking.ParkirnaMesta.length <= seatPickerLimit;
+
         document.getElementById('submitRezervacijaBtn').disabled = true;
 
         if (!parkId || !start || !end) {
+            if (usesSeatPicker) {
+                document.getElementById('parkirnoMestoId').value = "0";
+                resetSeatAvailability();
+            }
             setAvailability("Izberi začetek in konec za preverjanje prostih mest.", "info");
             return;
         }
@@ -170,6 +249,11 @@
         var diffMs = new Date(end) - new Date(start);
         if (diffMs <= 0) {
             setAvailability("Neveljaven interval (konec mora biti po začetku).", "bad");
+            return;
+        }
+
+        if (usesSeatPicker) {
+            await fetchSmallParkingAvailability(parking, start, end);
             return;
         }
 
@@ -192,9 +276,99 @@
         }
     }
 
+    function usesSeatPicker(parking) {
+        return parking && (parking.ParkirnaMesta?.length || 0) > 0 &&
+            parking.ParkirnaMesta.length <= seatPickerLimit;
+    }
+
+    function updateSeatButtons() {
+        document.querySelectorAll('#seatGrid .sp-seat-button').forEach(button => {
+            const seatId = Number(button.dataset.seatId);
+            const isAvailable = availableSeatIds.includes(seatId);
+            const isSelected = document.getElementById('parkirnoMestoId').value === seatId.toString();
+
+            button.disabled = !isAvailable;
+            button.classList.toggle('is-available', isAvailable);
+            button.classList.toggle('is-selected', isSelected);
+            button.classList.toggle('is-occupied', !isAvailable);
+        });
+    }
+
+    function resetSeatAvailability() {
+        if (!activeParking || !usesSeatPicker(activeParking)) return;
+
+        availableSeatIds = activeParking.ParkirnaMesta
+            .filter(m => !m.Zasedeno)
+            .map(m => m.Id);
+        updateSeatButtons();
+    }
+
+    async function fetchSmallParkingAvailability(parking, start, end) {
+        const url = `/Rezervacije/GetProstaMesta?parkirisceId=${encodeURIComponent(parking.Id)}&zacetek=${encodeURIComponent(start)}&konec=${encodeURIComponent(end)}`;
+
+        try {
+            const res = await fetch(url);
+            availableSeatIds = await res.json();
+
+            const selectedId = document.getElementById('parkirnoMestoId').value;
+            if (!availableSeatIds.includes(Number(selectedId))) {
+                document.getElementById('parkirnoMestoId').value = "0";
+            }
+
+            updateSeatButtons();
+
+            if (availableSeatIds.length === 0) {
+                setAvailability("Za izbrani termin ni prostih mest.", "bad");
+            } else if (document.getElementById('parkirnoMestoId').value !== "0") {
+                const selected = parking.ParkirnaMesta.find(m => m.Id.toString() === selectedId);
+                setAvailability(`Izbrano mesto ${selected?.Stevilka ?? ""} je prosto.`, "ok");
+            } else {
+                setAvailability("Izberi eno od prostih parkirnih mest.", "info");
+            }
+        } catch (e) {
+            console.error(e);
+            setAvailability("Napaka pri preverjanju parkirnih mest.", "bad");
+        }
+    }
+
     function showRezervacijaModal() {
         var modal = new bootstrap.Modal(document.getElementById('rezervacijaModal'));
         modal.show();
+    }
+
+    let reservationStep = 1;
+
+    function showReservationStep(step) {
+        reservationStep = step;
+
+        document.querySelectorAll('[data-reservation-step]').forEach(element => {
+            element.classList.toggle('d-none', Number(element.dataset.reservationStep) !== step);
+        });
+
+        document.querySelectorAll('[data-step-indicator]').forEach(element => {
+            element.classList.toggle('is-active', Number(element.dataset.stepIndicator) <= step);
+        });
+
+        document.getElementById('reservationBackBtn').classList.toggle('d-none', step === 1);
+        document.getElementById('reservationNextBtn').classList.toggle('d-none', step === 3);
+        document.getElementById('submitRezervacijaBtn').classList.toggle('d-none', step !== 3);
+        document.getElementById('seatAutoNote').classList.toggle(
+            'd-none',
+            step !== 2 || usesSeatPicker(activeParking)
+        );
+    }
+
+    function updateReservationSummary() {
+        const selectedId = document.getElementById('parkirnoMestoId').value;
+        const selectedSeat = activeParking?.ParkirnaMesta?.find(m => m.Id.toString() === selectedId);
+        const start = document.getElementById('startTime').value.replace('T', ' ');
+        const end = document.getElementById('endTime').value.replace('T', ' ');
+
+        document.getElementById('summaryParking').textContent =
+            document.getElementById('parkNaslov').textContent;
+        document.getElementById('summaryTime').textContent = `${start} – ${end}`;
+        document.getElementById('summarySeat').textContent =
+            selectedSeat ? `Mesto ${selectedSeat.Stevilka}` : 'Samodejna dodelitev';
     }
 
     var spMarkers = [];
@@ -254,33 +428,86 @@
 
     function resetRezervacijaForm() {
         document.getElementById('parkId').value = "";
-        document.getElementById('parkNaslov').value = "";
+        document.getElementById('parkNaslov').textContent = "";
         document.getElementById('parkPrice').value = "";
-        document.getElementById('parkCena').value = "";
+        document.getElementById('parkCena').textContent = "";
         document.getElementById('startTime').value = "";
         document.getElementById('endTime').value = "";
-        document.getElementById('totalPrice').value = "0.00 €";
+        document.getElementById('totalPrice').textContent = "0.00 €";
         document.getElementById('parkirnoMestoId').value = "0";
         document.getElementById('submitRezervacijaBtn').disabled = true;
+        document.getElementById('reservationStepError').textContent = "";
+        activeParking = null;
+        availableSeatIds = [];
+        document.getElementById('seatPicker').classList.add('d-none');
+        document.getElementById('seatGrid').replaceChildren();
         setAvailability("Izberi začetek in konec za preverjanje prostih mest.", "info");
+        showReservationStep(1);
+    }
+
+    function renderSeatPicker(parking) {
+        activeParking = parking;
+        const picker = document.getElementById('seatPicker');
+        const grid = document.getElementById('seatGrid');
+
+        if (!usesSeatPicker(parking)) {
+            picker.classList.add('d-none');
+            grid.replaceChildren();
+            return;
+        }
+
+        picker.classList.remove('d-none');
+        document.getElementById('seatPickerCount').textContent = `${parking.ParkirnaMesta.length} mest`;
+        grid.replaceChildren();
+
+        parking.ParkirnaMesta
+            .slice()
+            .sort((a, b) => a.Stevilka - b.Stevilka)
+            .forEach(mesto => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'sp-seat-button';
+                button.dataset.seatId = mesto.Id;
+                button.textContent = mesto.Stevilka;
+                button.title = mesto.Zasedeno ? 'Zasedeno' : `Mesto ${mesto.Stevilka}`;
+                button.addEventListener('click', () => {
+                    document.getElementById('parkirnoMestoId').value = mesto.Id;
+                    updateSeatButtons();
+
+                    const hasTimes = document.getElementById('startTime').value &&
+                        document.getElementById('endTime').value;
+                    setAvailability(
+                        hasTimes
+                            ? `Izbrano mesto ${mesto.Stevilka} je prosto.`
+                            : `Izbrano mesto ${mesto.Stevilka}. Zdaj izberi termin.`,
+                        hasTimes ? "ok" : "info"
+                    );
+                });
+                grid.appendChild(button);
+            });
+
+        resetSeatAvailability();
     }
 
     function fillAndShowModal(p) {
+        renderSeatPicker(p);
         document.getElementById('parkId').value = p.Id;
-        document.getElementById('parkNaslov').value = p.Naslov;
+        document.getElementById('parkNaslov').textContent = p.Naslov;
         document.getElementById('parkPrice').value = p.CenaNaUro;
-        document.getElementById('parkCena').value = p.CenaNaUro + " €";
+        document.getElementById('parkCena').textContent = p.CenaNaUro + " €";
 
         document.getElementById('startTime').value = "";
         document.getElementById('endTime').value = "";
-        document.getElementById('totalPrice').value = "0.00 €";
+        document.getElementById('totalPrice').textContent = "0.00 €";
         document.getElementById('parkirnoMestoId').value = "0";
+        document.getElementById('reservationStepError').textContent = "";
 
         document.getElementById('startTime').onchange = updateTotal;
         document.getElementById('endTime').onchange = updateTotal;
 
         document.getElementById('submitRezervacijaBtn').disabled = true;
         setAvailability("Izberi začetek in konec za preverjanje prostih mest.", "info");
+        showReservationStep(1);
 
         showRezervacijaModal();
     }
@@ -296,14 +523,14 @@
         var pricePerHour = parseFloat(document.getElementById('parkPrice').value) || 0;
 
         if (!start || !end) {
-            document.getElementById('totalPrice').value = "0.00 €";
+            document.getElementById('totalPrice').textContent = "0.00 €";
             fetchProstoMesto();
             return;
         }
 
         var diffMs = new Date(end) - new Date(start);
         if (diffMs <= 0) {
-            document.getElementById('totalPrice').value = "0.00 €";
+            document.getElementById('totalPrice').textContent = "0.00 €";
             fetchProstoMesto();
             return;
         }
@@ -311,7 +538,7 @@
         var hours = diffMs / (1000 * 60 * 60);
         var total = hours * pricePerHour;
 
-        document.getElementById('totalPrice').value = total.toFixed(2) + " €";
+        document.getElementById('totalPrice').textContent = total.toFixed(2) + " €";
         fetchProstoMesto();
     }
 
@@ -330,6 +557,45 @@
             const modalEl = document.getElementById('rezervacijaModal');
             const instance = bootstrap.Modal.getInstance(modalEl);
             if (instance) instance.hide();
+        });
+
+        document.getElementById('reservationBackBtn').addEventListener('click', function () {
+            showReservationStep(Math.max(1, reservationStep - 1));
+        });
+
+        document.getElementById('reservationNextBtn').addEventListener('click', async function () {
+            const error = document.getElementById('reservationStepError');
+
+            if (reservationStep === 1) {
+                const start = document.getElementById('startTime').value;
+                const end = document.getElementById('endTime').value;
+
+                if (!start || !end) {
+                    error.textContent = "Izberi začetek in konec rezervacije.";
+                    return;
+                }
+
+                if (new Date(end) <= new Date(start)) {
+                    error.textContent = "Konec rezervacije mora biti po začetku.";
+                    return;
+                }
+
+                error.textContent = "";
+                await fetchProstoMesto();
+                showReservationStep(2);
+                return;
+            }
+
+            if (reservationStep === 2) {
+                const mestoId = document.getElementById('parkirnoMestoId').value;
+                if (!mestoId || mestoId === "0") {
+                    setAvailability("Izberi prosto mesto za nadaljevanje.", "bad");
+                    return;
+                }
+
+                updateReservationSummary();
+                showReservationStep(3);
+            }
         });
 
         form.addEventListener('submit', function (e) {
@@ -412,6 +678,15 @@
         return (v || "").replace(/\s+/g, "");
     }
 
+    function formatCardNumber(value) {
+        return normalizeCardNumber(value).replace(/\D/g, "").substring(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+    }
+
+    function formatExpiry(value) {
+        const digits = (value || "").replace(/\D/g, "").substring(0, 4);
+        return digits.length > 2 ? digits.substring(0, 2) + "/" + digits.substring(2) : digits;
+    }
+
     function validateCardFields() {
         const name = (document.getElementById("cardName").value || "").trim();
         const number = normalizeCardNumber(document.getElementById("cardNumber").value);
@@ -419,6 +694,7 @@
         const cvv = (document.getElementById("cardCvv").value || "").trim();
 
         if (!name) return "Vnesi ime na kartici.";
+        if (name.length > 50) return "Ime na kartici je predolgo.";
         if (!/^\d{16}$/.test(number)) return "Številka kartice mora imeti 16 številk.";
         if (!/^\d{2}\/\d{2}$/.test(exp)) return "Veljavnost mora biti v obliki MM/YY.";
         const mm = parseInt(exp.substring(0,2), 10);
@@ -430,6 +706,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         const paymentMethod = document.getElementById("paymentMethod");
         const cardFields = document.getElementById("cardFields");
+        const cardName = document.getElementById("cardName");
+        const cardNumber = document.getElementById("cardNumber");
+        const cardExp = document.getElementById("cardExp");
+        const cardCvv = document.getElementById("cardCvv");
+        const cardPreviewNumber = document.getElementById("cardPreviewNumber");
 
         if (paymentMethod && cardFields) {
             const sync = () => {
@@ -437,6 +718,33 @@
             };
             paymentMethod.addEventListener("change", sync);
             sync();
+        }
+
+        if (cardName) {
+            cardName.addEventListener("input", () => {
+                cardName.value = cardName.value.replace(/[^\p{L}\s.'-]/gu, "").substring(0, 50);
+            });
+        }
+
+        if (cardNumber) {
+            cardNumber.addEventListener("input", () => {
+                cardNumber.value = formatCardNumber(cardNumber.value);
+                if (cardPreviewNumber) {
+                    cardPreviewNumber.textContent = cardNumber.value || "1234 5678 9012 3456";
+                }
+            });
+        }
+
+        if (cardExp) {
+            cardExp.addEventListener("input", () => {
+                cardExp.value = formatExpiry(cardExp.value);
+            });
+        }
+
+        if (cardCvv) {
+            cardCvv.addEventListener("input", () => {
+                cardCvv.value = cardCvv.value.replace(/\D/g, "").substring(0, 3);
+            });
         }
     });
 

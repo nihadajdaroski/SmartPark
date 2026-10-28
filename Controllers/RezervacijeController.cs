@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using QRCoder;
 using SmartPark.Data;
 using SmartPark.Models;
 
@@ -52,6 +53,50 @@ namespace SmartPark.Controllers
                 .FirstOrDefaultAsync();
 
             return Json(mestoId); // 0 pomeni "ni prostih"
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProstaMesta(int parkirisceId, DateTime zacetek, DateTime konec)
+        {
+            if (konec <= zacetek)
+                return Json(Array.Empty<int>());
+
+            var mesta = await _context.ParkirnaMesta
+                .Where(pm => pm.ParkirisceId == parkirisceId)
+                .Where(pm => !_context.Rezervacije.Any(r =>
+                    r.ParkirnoMestoId == pm.Id &&
+                    r.Zacetek < konec &&
+                    r.Konec > zacetek))
+                .OrderBy(pm => pm.Stevilka)
+                .Select(pm => pm.Id)
+                .ToListAsync();
+
+            return Json(mesta);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DemoQrCode(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+                return Unauthorized();
+
+            var rezervacija = await _context.Rezervacije
+                .Include(r => r.Parkirisce)
+                .Include(r => r.ParkirnoMesto)
+                .FirstOrDefaultAsync(r => r.Id == id && r.ApplicationUserId == userId);
+
+            if (rezervacija == null)
+                return NotFound();
+
+            var payload =
+                $"SMARTPARK-DEMO|Rezervacija:{rezervacija.Id}|Parkirisce:{rezervacija.Parkirisce?.Naslov}|Mesto:{rezervacija.ParkirnoMesto?.Stevilka}|Od:{rezervacija.Zacetek:O}|Do:{rezervacija.Konec:O}";
+
+            using var qrGenerator = new QRCodeGenerator();
+            using var qrCodeData = qrGenerator.CreateQrCode(payload, QRCodeGenerator.ECCLevel.M);
+            var qrCode = new PngByteQRCode(qrCodeData);
+
+            return File(qrCode.GetGraphic(12), "image/png");
         }
 
         [HttpPost]
