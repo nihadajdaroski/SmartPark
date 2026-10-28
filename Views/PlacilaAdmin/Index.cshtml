@@ -4,35 +4,40 @@
     ViewData["Title"] = "Plačila";
 }
 
-<div class="container py-4">
+<div class="sp-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="font-weight:900;">Seznam plačil</div>
+        <div class="sp-badge">@Model.Count zapisov</div>
+    </div>
+
     @if (!Model.Any())
     {
-        <div class="alert alert-info">Trenutno ni nobenih plačil.</div>
+        <div class="alert alert-info mt-3 mb-0">Trenutno ni nobenih plačil.</div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
+        <div style="margin-top:14px; overflow:auto;">
+            <table class="sp-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Datum</th>
+                        <th style="min-width:150px;">Datum</th>
                         <th>Znesek</th>
                         <th>Način</th>
                         <th>Rezervacija</th>
-                        <th>Parkirišče</th>
+                        <th style="min-width:220px;">Parkirišče</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach (var p in Model)
                 {
                     <tr>
-                        <td>@p.Id</td>
-                        <td>@p.Datum.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@p.Znesek.ToString("0.00") €</td>
-                        <td>@p.NacinPlacila</td>
-                        <td>#@p.RezervacijaId</td>
-                        <td>@p.Rezervacija?.Parkirisce?.Naslov</td>
+                        <td style="font-weight:800;">#@p.Id</td>
+                        <td style="font-weight:800;">@p.Datum.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td style="font-weight:900;">@p.Znesek.ToString("0.00") €</td>
+                        <td><span class="sp-badge">@p.NacinPlacila</span></td>
+                        <td style="font-weight:800;">#@p.RezervacijaId</td>
+                        <td style="font-weight:800;">@(p.Rezervacija?.Parkirisce?.Naslov ?? "-")</td>
                     </tr>
                 }
                 </tbody>

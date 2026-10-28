@@ -146,6 +146,22 @@
             padding: 12px;
         }
 
+        .sp-sidebar-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding: 0 4px;
+            color: rgba(255, 255, 255, .68);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .sp-sidebar-meta strong {
+            color: rgba(255, 255, 255, .92);
+            font-size: 12px;
+        }
+
         /* Topbar */
         .sp-content {
             padding: 18px 22px;
@@ -161,6 +177,14 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 16px;
+        }
+
+        .sp-mobile-menu-toggle {
+            display: none;
+        }
+
+        .sp-sidebar-backdrop {
+            display: none;
         }
 
         .sp-topbar h1 {
@@ -390,13 +414,62 @@
 
         /* Mobile */
         @@media (max-width: 992px) {
+            body.smartpark-body {
+                overflow: auto;
+            }
+
             .sp-shell {
-                grid-template-columns: 1fr;
+                display: block;
             }
 
             .sp-sidebar {
-                position: relative;
-                height: auto;
+                position: fixed;
+                z-index: 1050;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                transform: translateX(-105%);
+                transition: transform .22s ease;
+            }
+
+            .sp-sidebar.is-open {
+                transform: translateX(0);
+            }
+
+            .sp-sidebar-backdrop {
+                position: fixed;
+                z-index: 1040;
+                inset: 0;
+                display: block;
+                background: rgba(2, 18, 35, .46);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .22s ease;
+            }
+
+            .sp-sidebar-backdrop.is-visible {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .sp-mobile-menu-toggle {
+                position: fixed;
+                z-index: 1060;
+                top: 14px;
+                right: 14px;
+                display: inline-flex;
+                width: 44px;
+                height: 44px;
+                align-items: center;
+                justify-content: center;
+                border: 0;
+                border-radius: 14px;
+                background: #0b3a66;
+                color: #fff;
+                box-shadow: 0 10px 24px rgba(11, 58, 102, .22);
+                font-size: 21px;
+                cursor: pointer;
             }
 
             .sp-topbar {
@@ -414,7 +487,28 @@
     </style>
 </head>
 
+@{
+    var path = (Context.Request.Path.Value ?? "").ToLowerInvariant();
+    var isAuthPage = path == "/identity/account/login" || path == "/identity/account/register";
+    var pageSubtitle = path.StartsWith("/admin/")
+        ? "Administratorski pregled"
+        : path.StartsWith("/rezervacije")
+            ? "Upravljanje tvojimi rezervacijami"
+            : path.StartsWith("/identity/account/manage")
+                ? "Nastavitve uporabniškega računa"
+                : "Pregled parkirišč in razpoložljivosti";
+}
+
 <body class="smartpark-body">
+    @if (!isAuthPage)
+    {
+        <button type="button" class="sp-mobile-menu-toggle" id="spMobileMenuToggle"
+                aria-label="Odpri meni" aria-expanded="false">
+            ☰
+        </button>
+        <div class="sp-sidebar-backdrop" id="spSidebarBackdrop"></div>
+    }
+
     <div class="sp-shell">
 
         <aside class="sp-sidebar">
@@ -433,9 +527,6 @@
             </div>
 
             @{
-                var path = (Context.Request.Path.Value ?? "").ToLowerInvariant();
-                var isAuthPage = path == "/identity/account/login" || path == "/identity/account/register";
-
                 string ActiveExact(string exact) =>
                 path == exact.ToLowerInvariant() ? "active" : "";
 
@@ -475,6 +566,14 @@
                 </div>
             }
 
+            @if (!isAuthPage)
+            {
+                <div class="sp-sidebar-meta">
+                    <span>Danes</span>
+                    <strong>@DateTime.Now.ToString("dd. MM. yyyy")</strong>
+                </div>
+            }
+
         </aside>
 
         <main class="sp-content @(isAuthPage ? "sp-auth-content" : "")">
@@ -483,12 +582,9 @@
                 <div class="sp-topbar">
                     <div>
                         <h1>@ViewData["Title"]</h1>
-                        <p class="subtitle">Dobrodošel!</p>
+                        <p class="subtitle">@pageSubtitle</p>
                     </div>
 
-                    <div style="font-size:12px; color:#6b7280; font-weight:850;">
-                        @DateTime.Now.ToString("yyyy-MM-dd")
-                    </div>
                     <div class="sp-topbar-actions">
                         @RenderSection("TopActions", required: false)
                     </div>
@@ -515,7 +611,26 @@
             }
 
             document.querySelector(".sp-content")?.classList.add("sp-navigating");
+            closeMobileMenu();
         });
+
+        const mobileMenuToggle = document.getElementById("spMobileMenuToggle");
+        const sidebar = document.querySelector(".sp-sidebar");
+        const sidebarBackdrop = document.getElementById("spSidebarBackdrop");
+
+        function closeMobileMenu() {
+            sidebar?.classList.remove("is-open");
+            sidebarBackdrop?.classList.remove("is-visible");
+            mobileMenuToggle?.setAttribute("aria-expanded", "false");
+        }
+
+        mobileMenuToggle?.addEventListener("click", function () {
+            const isOpen = sidebar?.classList.toggle("is-open") ?? false;
+            sidebarBackdrop?.classList.toggle("is-visible", isOpen);
+            mobileMenuToggle.setAttribute("aria-expanded", isOpen.toString());
+        });
+
+        sidebarBackdrop?.addEventListener("click", closeMobileMenu);
     </script>
 </body>
 

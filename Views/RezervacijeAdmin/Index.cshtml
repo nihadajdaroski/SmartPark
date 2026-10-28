@@ -4,35 +4,40 @@
     ViewData["Title"] = "Vse rezervacije";
 }
 
-<div class="container py-4">
+<div class="sp-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="font-weight:900;">Seznam rezervacij</div>
+        <div class="sp-badge">@Model.Count zapisov</div>
+    </div>
+
     @if (!Model.Any())
     {
-        <div class="alert alert-info">Trenutno ni rezervacij.</div>
+        <div class="alert alert-info mt-3 mb-0">Trenutno ni rezervacij.</div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
+        <div style="margin-top:14px; overflow:auto;">
+            <table class="sp-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Uporabnik</th>
-                        <th>Parkirišče</th>
+                        <th style="min-width:220px;">Uporabnik</th>
+                        <th style="min-width:220px;">Parkirišče</th>
                         <th>Mesto</th>
-                        <th>Začetek</th>
-                        <th>Konec</th>
+                        <th style="min-width:150px;">Začetek</th>
+                        <th style="min-width:150px;">Konec</th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach (var r in Model)
                 {
                     <tr>
-                        <td>@r.Id</td>
-                        <td>@(r.Uporabnik?.Email ?? r.Uporabnik?.UserName ?? r.ApplicationUserId ?? "-")</td>
-                        <td>@(r.Parkirisce?.Naslov ?? "-")</td>
-                        <td>@(r.ParkirnoMesto?.Stevilka.ToString() ?? "-")</td>
-                        <td>@r.Zacetek.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@r.Konec.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td style="font-weight:800;">#@r.Id</td>
+                        <td style="font-weight:800;">@(r.Uporabnik?.Email ?? r.Uporabnik?.UserName ?? r.ApplicationUserId ?? "-")</td>
+                        <td style="font-weight:800;">@(r.Parkirisce?.Naslov ?? "-")</td>
+                        <td><span class="sp-badge">@(r.ParkirnoMesto?.Stevilka.ToString() ?? "-")</span></td>
+                        <td style="font-weight:800;">@r.Zacetek.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td style="font-weight:800;">@r.Konec.ToString("dd.MM.yyyy HH:mm")</td>
                     </tr>
                 }
                 </tbody>
