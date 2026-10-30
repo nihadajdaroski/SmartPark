@@ -1,29 +1,53 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using SmartPark.Models;
 
 namespace SmartPark.Data;
 
 public static class DbInitializer
 {
-    public static async Task SeedAsync(IServiceProvider services)
+    public static async Task SeedAsync(IServiceProvider services, IHostEnvironment environment)
     {
         using var scope = services.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var ctx = scope.ServiceProvider.GetRequiredService<SmartParkContext>();
 
-        // Vloge
         var roles = new[] { "Administrator", "Manager", "Staff" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
+                EnsureIdentitySuccess(
+                    await roleManager.CreateAsync(new IdentityRole(role)),
+                    $"Creating the {role} role");
         }
 
-        // Demo uporabnik
         var adminEmail = "admin@smartpark.local";
         var admin = await userManager.FindByEmailAsync(adminEmail);
+
+        if (!environment.IsDevelopment())
+        {
+            if (admin is not null)
+            {
+                EnsureIdentitySuccess(await userManager.SetLockoutEnabledAsync(admin, true), "Disabling the demo administrator account");
+                EnsureIdentitySuccess(
+                    await userManager.SetLockoutEndDateAsync(admin, DateTimeOffset.MaxValue),
+                    "Disabling the demo administrator account");
+                EnsureIdentitySuccess(
+                    await userManager.UpdateSecurityStampAsync(admin),
+                    "Invalidating sessions for the demo administrator account");
+
+                if (await userManager.IsInRoleAsync(admin, "Administrator"))
+                {
+                    EnsureIdentitySuccess(
+                        await userManager.RemoveFromRoleAsync(admin, "Administrator"),
+                        "Removing the demo administrator role");
+                }
+            }
+
+            return;
+        }
+
         if (admin is null)
         {
             admin = new ApplicationUser
@@ -35,10 +59,17 @@ public static class DbInitializer
                 EmailConfirmed = true,
                 RegistrskaStevilka = "GO-1234"
             };
-            await userManager.CreateAsync(admin, "Admin!234");
-            await userManager.AddToRoleAsync(admin, "Administrator");
+            EnsureIdentitySuccess(await userManager.CreateAsync(admin, "Admin!234"), "Creating the local demo administrator");
         }
 
+        if (!await userManager.IsInRoleAsync(admin, "Administrator"))
+            EnsureIdentitySuccess(await userManager.AddToRoleAsync(admin, "Administrator"), "Assigning the local demo administrator role");
+    }
+
+    private static void EnsureIdentitySuccess(IdentityResult result, string operation)
+    {
+        if (!result.Succeeded)
+            throw new InvalidOperationException($"{operation} failed: {string.Join("; ", result.Errors.Select(error => error.Description))}");
     }
 
     public static async Task EnsureDemoParkingAsync(IServiceProvider services)

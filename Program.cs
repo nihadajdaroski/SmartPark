@@ -55,7 +55,7 @@ using (var scope = app.Services.CreateScope())
         await db.Database.MigrateAsync();
 
     // admin + vloge (+ opcijsko demo parkirišče, če je v SeedAsync še prisotno)
-    await DbInitializer.SeedAsync(services);
+    await DbInitializer.SeedAsync(services, app.Environment);
 
     // Demo podatki so na voljo takoj; uradni uvoz teče v ozadju.
     await DbInitializer.EnsureDemoParkingAsync(services);
