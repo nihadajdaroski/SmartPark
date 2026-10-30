@@ -485,25 +485,42 @@ body.smartpark-body h6 {
 
 .sp-auth-card .btn-primary,
 .btn-sp-primary {
-    background: var(--clean-primary) !important;
-    border-color: var(--clean-primary) !important;
+    background: var(--smartpark-blue) !important;
+    border-color: var(--smartpark-blue) !important;
     border-radius: 8px !important;
     font-weight: 500 !important;
 }
 
 .sp-auth-card .btn-primary:hover,
 .btn-sp-primary:hover {
-    background: var(--clean-primary-active) !important;
-    border-color: var(--clean-primary-active) !important;
+    background: #155bcb !important;
+    border-color: #155bcb !important;
 }
 
-.sp-auth-links a,
-.sp-auth-card .eyebrow {
-    color: var(--clean-primary) !important;
+.sp-auth-links a {
+    color: var(--smartpark-blue) !important;
 }
 
 .sp-auth-links a:hover {
-    color: var(--clean-primary-active) !important;
+    color: #155bcb !important;
+}
+
+.sp-reset-password-shell {
+    grid-template-columns: minmax(0, 620px) !important;
+    justify-content: center;
+}
+
+.sp-reset-password-form .form-floating {
+    margin-bottom: 16px;
+}
+
+.sp-reset-password-form .form-control {
+    border-color: var(--clean-line) !important;
+    border-radius: 8px !important;
+}
+
+.sp-reset-password-form .btn-primary {
+    margin-top: 6px;
 }
 
 .btn-sp-ghost,

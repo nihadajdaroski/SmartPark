@@ -1,51 +1,78 @@
 # SmartPark
 
-**SmartPark** je demo spletna aplikacija za iskanje parkirišč, rezervacijo parkirnih mest in simulacijo plačil v Ljubljani.
+SmartPark je demo spletna aplikacija za iskanje parkirišč v Ljubljani, rezervacijo parkirnih mest in simulacijo plačil.
 
-Aplikacija uporablja interaktivni zemljevid z OpenStreetMap in Leaflet, podatkovno bazo za upravljanje rezervacij ter ASP.NET Core Identity za prijavo uporabnikov in administratorski del.
+Aplikacija prikazuje parkirišča na zemljevidu ter omogoča uporabniške račune, rezervacije in administratorski pregled. Plačila so simulirana in ne bremenijo bančne kartice.
 
-> Plačila so simulirana in niso povezana z dejanskim plačilnim ponudnikom.
+## Zagon na Windows
 
-## Ključne funkcionalnosti
+Za lokalni zagon ne potrebuješ SQL Serverja, Azure računa ali predhodnih izkušenj z .NET. Aplikacija v razvojnem načinu uporablja SQLite, lokalno datotečno bazo.
 
-- interaktivni zemljevid parkirišč,
-- pregled lokacije, cene, delovnega časa in razpoložljivosti,
-- ustvarjanje, pregled in preklic rezervacij,
-- simulacija plačila s kartico ali plačilnim nalogom,
-- administratorski pregled rezervacij.
+### 1. Namesti potrebno programsko opremo
+
+1. Namesti **.NET 8 SDK** z uradne strani: [Prenos .NET 8](https://dotnet.microsoft.com/download/dotnet/8.0). Izberi **SDK**, ne samo Runtime.
+2. Namesti **Git for Windows** s strani [git-scm.com](https://git-scm.com/download/win), če želiš prenesti projekt z ukazom `git clone`. Git ni potreben, če projekt preneseš kot ZIP z GitHubove strani.
+3. Ko je namestitev končana, odpri novo okno PowerShella in preveri .NET:
+
+   ```powershell
+   dotnet --list-sdks
+   ```
+
+   Na seznamu mora biti različica `8.0.x`.
+
+### 2. Prenesi projekt
+
+V PowerShellu zaženi:
+
+```powershell
+git clone https://github.com/nihadajdaroski/SmartPark.git
+cd SmartPark
+```
+
+Če si projekt že prenesel ali razširil ZIP arhiv, odpri PowerShell v mapi, kjer je datoteka `SmartPark.csproj`, in preskoči ukaz `git clone`.
+
+### 3. Zaženi aplikacijo
+
+V mapi projekta zaženi:
+
+```powershell
+dotnet restore
+dotnet run --launch-profile http
+```
+
+Prvi ukaz prenese potrebne knjižnice. Drugi zažene aplikacijo v razvojnem načinu in izpiše lokalni naslov, običajno:
+
+```text
+http://localhost:5143
+```
+
+Odpri izpisani naslov v brskalniku. Zaustavi aplikacijo v PowerShellu z `Ctrl+C`.
+
+## Prijava in lokalni podatki
+
+Ob prvem zagonu se samodejno ustvari lokalna SQLite baza `smartpark.local.db` in demo administratorski račun:
+
+- **E-pošta:** `admin@smartpark.local`
+- **Geslo:** `Admin!234`
+
+Uporabljaj ta račun samo za lokalni demo. Če spremeniš ali izbrišeš lokalno bazo, se demo podatki ob naslednjem zagonu ponovno inicializirajo.
+
+Podatki o parkiriščih se osvežujejo v ozadju iz javnih virov JP LPT. Za pridobivanje svežih podatkov potrebuješ internetno povezavo. Če vir ni dosegljiv, aplikacija uporabi nadomestne podatke, kadar so na voljo.
+
+## Odpravljanje pogostih težav
+
+- **`dotnet` ni prepoznan:** preveri, da si namestil .NET 8 SDK, nato zapri in ponovno odpri PowerShell.
+- **Projekt se ne zažene iz trenutne mape:** z ukazom `cd` pojdi v mapo, v kateri je `SmartPark.csproj`.
+- **Naslova `localhost:5143` ni mogoče odpreti:** preveri naslov, ki ga je izpisal `dotnet run`; aplikacija se lahko zažene na drugem prostem naslovu.
+- **Obnova knjižnic ne uspe:** preveri internetno povezavo in ponovno zaženi `dotnet restore`.
 
 ## Tehnologije
 
-- **C# / ASP.NET Core MVC**
-- **Entity Framework Core**
-- **SQL Server / Azure SQL**
-- **ASP.NET Core Identity**
-- **Leaflet.js**
-- **Uradne javne strani JP LPT**
-- **OpenStreetMap kot fallback vir**
+- C# in ASP.NET Core MVC (.NET 8)
+- Entity Framework Core in SQLite za lokalni razvoj
+- SQL Server za okolja, ki ga uporabljajo
+- ASP.NET Core Identity
+- Leaflet.js in OpenStreetMap
+- Javni podatki JP LPT
 
-## Lokalni zagon
-
-### Predpogoji
-
-- .NET 8 SDK
-- SQL Server/LocalDB samo za produkcijski profil
-
-### Namestitev
-
-```bash
-dotnet restore
-dotnet run
-```
-
-Razvojni profil uporablja lokalno SQLite bazo `smartpark.local.db`, ki se ustvari samodejno.
-Ob zagonu se ustvari demo administrator `admin@smartpark.local` z geslom `Admin!234`.
-Podatki o parkiriščih se po zagonu osvežijo v ozadju iz uradnih javnih strani
-JP LPT. Če LPT ni dosegljiv, se uporabi OpenStreetMap fallback, ob neuspehu obstoječi
-lokalni snapshot oziroma demo parkirišče.
-
-Za produkcijo nastavi `ConnectionStrings:SmartParkContext` v okolju in aplikacijo zaženi z okoljem, ki ni `Development`.
-
-## Namen projekta
-
-Projekt je izdelan za izobraževalne in demonstracijske namene ter predstavlja primer spletne aplikacije z uporabniškim, rezervacijskim in administratorskim delom.
+Projekt je namenjen izobraževalnim in demonstracijskim namenom.

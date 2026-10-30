@@ -492,7 +492,9 @@
 
 @{
     var path = (Context.Request.Path.Value ?? "").ToLowerInvariant();
-    var isAuthPage = path == "/identity/account/login" || path == "/identity/account/register";
+    var isAuthPage = path == "/identity/account/login"
+        || path == "/identity/account/register"
+        || path == "/identity/account/forgotpassword";
     var pageSubtitle = path.StartsWith("/admin/")
         ? "Administratorski pregled"
         : path.StartsWith("/rezervacije")
