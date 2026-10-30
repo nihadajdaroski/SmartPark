@@ -702,6 +702,382 @@ body.smartpark-body h6 {
     font-weight: 500;
 }
 
+.sp-map-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) auto;
+    align-items: end;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sp-map-filter-group {
+    min-width: 0;
+}
+
+.sp-map-filter-label {
+    display: block;
+    margin: 0 0 6px 2px;
+    color: var(--clean-body);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sp-map-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sp-map-input-wrap > svg {
+    position: absolute;
+    left: 12px;
+    z-index: 1;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--clean-muted);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+    pointer-events: none;
+}
+
+.sp-map-filter-input {
+    height: 44px;
+    border: 1px solid var(--clean-line) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--clean-text);
+    font-size: 13px;
+    box-shadow: none !important;
+}
+
+.sp-map-search .sp-map-filter-input {
+    padding-left: 40px;
+}
+
+.sp-map-price .sp-map-filter-input {
+    padding-right: 44px;
+}
+
+.sp-map-filter-input:focus {
+    border-color: var(--smartpark-blue) !important;
+    box-shadow: 0 0 0 3px rgba(29, 119, 255, .12) !important;
+}
+
+.sp-map-filter-input::placeholder {
+    color: #9aa4b2;
+}
+
+.sp-map-filter-suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--clean-muted);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.sp-map-filter-actions {
+    display: flex;
+    align-items: end;
+}
+
+.sp-map-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 13px;
+    border-color: var(--clean-line) !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--clean-body) !important;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.sp-map-clear:hover {
+    border-color: #cbd9ea !important;
+    background: var(--smartpark-blue-soft) !important;
+    color: var(--smartpark-blue) !important;
+}
+
+.sp-map-clear svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.sp-map-parking-icon {
+    border: 0;
+    background: transparent;
+}
+
+.sp-map-parking-symbol {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 3px solid #fff;
+    border-radius: 13px;
+    background: var(--smartpark-blue);
+    box-shadow: 0 3px 10px rgba(20, 54, 96, .3);
+    color: #fff;
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.sp-map-parking-symbol svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.sp-map-parking-count {
+    position: absolute;
+    top: -1px;
+    right: -2px;
+    display: grid;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    background: var(--clean-accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(20, 54, 96, .2);
+}
+
+.sp-map-parking-icon:hover .sp-map-parking-symbol {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 13px rgba(20, 54, 96, .34);
+}
+
+.leaflet-popup.sp-parking-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(24, 43, 74, .2);
+}
+
+.leaflet-popup.sp-parking-popup .leaflet-popup-content {
+    width: 276px !important;
+    max-width: calc(100vw - 72px);
+    margin: 0;
+}
+
+.leaflet-popup.sp-parking-popup .leaflet-popup-tip {
+    background: #fff;
+}
+
+.leaflet-popup.sp-parking-popup .leaflet-popup-close-button {
+    z-index: 1;
+    top: 9px;
+    right: 9px;
+    color: var(--clean-muted);
+}
+
+.sp-parking-popup-card {
+    padding: 18px;
+    color: var(--clean-text);
+}
+
+.sp-parking-popup-heading {
+    padding-right: 22px;
+}
+
+.sp-parking-popup-eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--smartpark-blue);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+}
+
+.sp-parking-popup-heading h3 {
+    margin: 0 0 16px;
+    color: var(--clean-ink);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.sp-parking-popup-availability {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.sp-parking-popup-availability > span {
+    color: var(--clean-body);
+}
+
+.sp-parking-popup-availability strong {
+    color: #15803d;
+    font-weight: 600;
+}
+
+.sp-parking-popup-availability.is-full strong {
+    color: #b42318;
+}
+
+.sp-parking-popup-availability.is-unknown strong {
+    color: var(--clean-muted);
+}
+
+.sp-parking-popup-progress {
+    height: 5px;
+    margin-top: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e8edf3;
+}
+
+.sp-parking-popup-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #22a06b;
+}
+
+.sp-parking-popup-availability.is-full + .sp-parking-popup-progress span {
+    background: #dc2626;
+}
+
+.sp-parking-popup-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--clean-line);
+}
+
+.sp-parking-popup-details > div {
+    min-width: 0;
+}
+
+.sp-parking-popup-details span,
+.sp-parking-popup-details strong {
+    display: block;
+}
+
+.sp-parking-popup-details span {
+    margin-bottom: 4px;
+    color: var(--clean-muted);
+    font-size: 10px;
+}
+
+.sp-parking-popup-details strong {
+    overflow-wrap: anywhere;
+    color: var(--clean-text);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sp-parking-popup-hours {
+    margin: 8px 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--clean-line);
+}
+
+.sp-parking-popup-hours-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--clean-body);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sp-parking-popup-hours-heading svg {
+    width: 26px;
+    height: 26px;
+    padding: 5px;
+    border-radius: 8px;
+    background: var(--smartpark-blue-soft);
+    fill: none;
+    stroke: var(--smartpark-blue);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.sp-parking-popup-hours-periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 0 34px;
+}
+
+.sp-parking-popup-hours-periods span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 8px;
+    border: 1px solid var(--clean-line);
+    border-radius: 7px;
+    background: var(--clean-surface);
+    color: var(--clean-text);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sp-parking-popup-hours-unknown {
+    margin: 7px 0 0 34px;
+    color: var(--clean-muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.sp-parking-popup-reserve {
+    width: 100%;
+    border-color: var(--smartpark-blue) !important;
+    border-radius: 8px !important;
+    background: var(--smartpark-blue) !important;
+    font-size: 13px !important;
+}
+
+.sp-parking-popup-reserve:hover {
+    border-color: #155bcb !important;
+    background: #155bcb !important;
+}
+
+@media (max-width: 700px) {
+    .sp-map-toolbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .sp-map-search {
+        grid-column: 1 / -1;
+    }
+
+    .sp-map-price {
+        width: min(100%, 170px);
+    }
+}
+
 .sp-reservations-page {
     max-width: 1180px;
     margin: 0 auto;

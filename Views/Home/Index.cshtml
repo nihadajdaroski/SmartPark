@@ -5,19 +5,33 @@
 }
 
 <div class="sp-card sp-map-wrap">
-    <div class="d-flex gap-2 mb-3 align-items-end flex-wrap">
-        <div style="min-width:280px; flex:1;">
-            <label class="form-label mb-1" style="margin-left: 7px; font-weight: bold;">Išči lokacijo</label>
-            <input id="spLocalSearch" class="form-control" placeholder="npr. Kongresni trg" />
+    <div class="sp-map-toolbar">
+        <div class="sp-map-filter-group sp-map-search">
+            <label class="sp-map-filter-label" for="spLocalSearch">Išči parkirišče</label>
+            <div class="sp-map-input-wrap">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="10.8" cy="10.8" r="6.3"></circle>
+                    <path d="m15.5 15.5 4.2 4.2"></path>
+                </svg>
+                <input id="spLocalSearch" class="form-control sp-map-filter-input" placeholder="npr. Kongresni trg" />
+            </div>
         </div>
 
-        <div style="width:180px;">
-            <label class="form-label mb-1" style="margin-left: 7px; font-weight: bold;">Max €/h</label>
-            <input id="spMaxPrice" type="number" step="0.1" min="0" class="form-control" placeholder="npr. 3.0" />
+        <div class="sp-map-filter-group sp-map-price">
+            <label class="sp-map-filter-label" for="spMaxPrice">Največja cena</label>
+            <div class="sp-map-input-wrap">
+                <input id="spMaxPrice" type="number" step="0.1" min="0" class="form-control sp-map-filter-input" placeholder="Brez omejitve" />
+                <span class="sp-map-filter-suffix">€/h</span>
+            </div>
         </div>
 
-        <div>
-            <button type="button" class="btn btn-outline-secondary" id="spClearFilters">Počisti</button>
+        <div class="sp-map-filter-actions">
+            <button type="button" class="btn btn-outline-secondary sp-map-clear" id="spClearFilters">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"></path>
+                </svg>
+                Počisti filtre
+            </button>
         </div>
     </div>
 
@@ -193,7 +207,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    var map = L.map('map').setView([46.0511, 14.5051], 17);
+    var map = L.map('map', { maxBoundsViscosity: 1.0 }).setView([46.0511, 14.5051], 17);
 
     L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; Stadia Maps &copy; OSM',
@@ -373,17 +387,140 @@
 
     var spMarkers = [];
 
-    parkirisca.forEach(function (p) {
-        if (p.Latitude && p.Longitude) {
-            var marker = L.marker([p.Latitude, p.Longitude]).addTo(map);
+    function createParkingPopup(parking, availableSpaces, totalSpaces) {
+        const card = document.createElement('div');
+        card.className = 'sp-parking-popup-card';
 
-            marker.bindPopup(
-            "<b>" + p.Naslov + "</b><br>" +
-            "Cena na uro: " + p.CenaNaUro + " €<br>" +
-            "Delovni čas: " + p.DelovniCas + "<br>" +
-            "Prosta mesta: " + (p.ParkirnaMesta ? p.ParkirnaMesta.filter(m => !m.Zasedeno).length : 'N/A') +
-            "<br><button class='btn btn-sm btn-primary mt-2' onclick='openRezervacija(" + p.Id + ")'>Rezerviraj</button>"
-            );
+        const heading = document.createElement('div');
+        heading.className = 'sp-parking-popup-heading';
+
+        const eyebrow = document.createElement('span');
+        eyebrow.className = 'sp-parking-popup-eyebrow';
+        eyebrow.textContent = 'PARKIRIŠČE';
+
+        const title = document.createElement('h3');
+        title.textContent = parking.Naslov || 'Neznano parkirišče';
+
+        heading.append(eyebrow, title);
+        card.appendChild(heading);
+
+        const availability = document.createElement('div');
+        availability.className = 'sp-parking-popup-availability';
+        if (totalSpaces <= 0 || !Number.isInteger(availableSpaces)) {
+            availability.classList.add('is-unknown');
+        } else if (availableSpaces === 0) {
+            availability.classList.add('is-full');
+        } else {
+            availability.classList.add('is-available');
+        }
+
+        const availabilityLabel = document.createElement('span');
+        availabilityLabel.textContent = 'Prosta mesta';
+
+        const availabilityValue = document.createElement('strong');
+        availabilityValue.textContent = totalSpaces > 0 && Number.isInteger(availableSpaces)
+            ? `${availableSpaces} od ${totalSpaces}`
+            : 'Ni podatka';
+
+        availability.append(availabilityLabel, availabilityValue);
+        card.appendChild(availability);
+
+        if (totalSpaces > 0 && Number.isInteger(availableSpaces)) {
+            const progressTrack = document.createElement('div');
+            progressTrack.className = 'sp-parking-popup-progress';
+            progressTrack.setAttribute('role', 'progressbar');
+            progressTrack.setAttribute('aria-valuemin', '0');
+            progressTrack.setAttribute('aria-valuemax', totalSpaces.toString());
+            progressTrack.setAttribute('aria-valuenow', availableSpaces.toString());
+
+            const progressBar = document.createElement('span');
+            progressBar.style.width = `${Math.round((availableSpaces / totalSpaces) * 100)}%`;
+            progressTrack.appendChild(progressBar);
+            card.appendChild(progressTrack);
+        }
+
+        const details = document.createElement('div');
+        details.className = 'sp-parking-popup-details';
+
+        const priceItem = document.createElement('div');
+        const priceLabel = document.createElement('span');
+        priceLabel.textContent = 'Cena';
+        const priceValue = document.createElement('strong');
+        const price = Number(parking.CenaNaUro);
+        priceValue.textContent = Number.isFinite(price)
+            ? `${price.toLocaleString('sl-SI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/h`
+            : 'Ni podatka';
+        priceItem.append(priceLabel, priceValue);
+
+        details.appendChild(priceItem);
+        card.appendChild(details);
+
+        const hoursSection = document.createElement('div');
+        hoursSection.className = 'sp-parking-popup-hours';
+
+        const hoursHeading = document.createElement('div');
+        hoursHeading.className = 'sp-parking-popup-hours-heading';
+        hoursHeading.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Delovni čas</span>';
+        hoursSection.appendChild(hoursHeading);
+
+        const hoursText = typeof parking.DelovniCas === 'string' ? parking.DelovniCas.trim() : '';
+        const hoursAreUnknown = !hoursText || /^(ni navedeno|ni podatka)/i.test(hoursText);
+        if (hoursAreUnknown) {
+            const unknownHours = document.createElement('p');
+            unknownHours.className = 'sp-parking-popup-hours-unknown';
+            unknownHours.textContent = hoursText || 'Podatek ni na voljo';
+            hoursSection.appendChild(unknownHours);
+        } else {
+            const hoursPeriods = document.createElement('div');
+            hoursPeriods.className = 'sp-parking-popup-hours-periods';
+            hoursText.split(/\s*[;|]\s*/).filter(Boolean).forEach(period => {
+                const periodChip = document.createElement('span');
+                periodChip.textContent = period.replace(/\s*[-–—]\s*/, ' – ');
+                hoursPeriods.appendChild(periodChip);
+            });
+            hoursSection.appendChild(hoursPeriods);
+        }
+
+        card.appendChild(hoursSection);
+
+        const reserveButton = document.createElement('button');
+        reserveButton.type = 'button';
+        reserveButton.className = 'btn btn-primary sp-parking-popup-reserve';
+        reserveButton.textContent = 'Rezerviraj parkirišče';
+        reserveButton.addEventListener('click', function () {
+            map.closePopup();
+            openRezervacija(parking.Id);
+        });
+        card.appendChild(reserveButton);
+
+        return card;
+    }
+
+    parkirisca.forEach(function (p) {
+        if (Number.isFinite(p.Latitude) && Number.isFinite(p.Longitude)) {
+            const hasSpaces = Array.isArray(p.ParkirnaMesta);
+            const totalSpaces = hasSpaces ? p.ParkirnaMesta.length : Math.max(Number(p.SteviloMest) || 0, 0);
+            const availableSpaces = hasSpaces
+                ? p.ParkirnaMesta.filter(space => !space.Zasedeno).length
+                : null;
+            const markerCount = Number.isInteger(availableSpaces) ? availableSpaces : '–';
+            const markerIcon = L.divIcon({
+                className: 'sp-map-parking-icon',
+                html: `<span class="sp-map-parking-symbol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/><path d="M7.5 12h9M9 15h6"/></svg></span><span class="sp-map-parking-count">${markerCount}</span>`,
+                iconSize: [48, 48],
+                iconAnchor: [24, 42],
+                popupAnchor: [0, -40]
+            });
+            const marker = L.marker([p.Latitude, p.Longitude], {
+                icon: markerIcon,
+                title: p.Naslov || 'Parkirišče',
+                alt: p.Naslov || 'Parkirišče'
+            }).addTo(map);
+
+            marker.bindPopup(createParkingPopup(p, availableSpaces, totalSpaces), {
+                className: 'sp-parking-popup',
+                maxWidth: 320
+            });
 
             spMarkers.push({
             id: p.Id,
@@ -393,6 +530,20 @@
             });
         }
     });
+
+    if (spMarkers.length > 0) {
+        const markerBounds = L.latLngBounds(spMarkers.map(item => item.marker.getLatLng()));
+        const latitudePadding = Math.max((markerBounds.getNorth() - markerBounds.getSouth()) * 0.1, 0.01);
+        const longitudePadding = Math.max((markerBounds.getEast() - markerBounds.getWest()) * 0.1, 0.01);
+        const parkingBounds = L.latLngBounds(
+            [markerBounds.getSouth() - latitudePadding, markerBounds.getWest() - longitudePadding],
+            [markerBounds.getNorth() + latitudePadding, markerBounds.getEast() + longitudePadding]
+        );
+
+        map.fitBounds(parkingBounds, { padding: [24, 24], maxZoom: 17 });
+        map.setMaxBounds(parkingBounds);
+        map.setMinZoom(map.getZoom());
+    }
 
     function applyFilters() {
         const q = (document.getElementById("spLocalSearch")?.value || "").toLowerCase().trim();
