@@ -10,7 +10,7 @@ Za lokalni zagon ne potrebuješ SQL Serverja, Azure računa ali predhodnih izku�
 
 ### 1. Namesti potrebno programsko opremo
 
-1. Namesti **.NET 8 SDK** z uradne strani: [Prenos .NET 8](https://dotnet.microsoft.com/download/dotnet/8.0). Izberi **SDK**, ne samo Runtime.
+1. Namesti **.NET 10 SDK** z uradne strani: [Prenos .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0). Izberi **SDK**, ne samo Runtime.
 2. Namesti **Git for Windows** s strani [git-scm.com](https://git-scm.com/download/win), če želiš prenesti projekt z ukazom `git clone`. Git ni potreben, če projekt preneseš kot ZIP z GitHubove strani.
 3. Ko je namestitev končana, odpri novo okno PowerShella in preveri .NET:
 
@@ -18,7 +18,7 @@ Za lokalni zagon ne potrebuješ SQL Serverja, Azure računa ali predhodnih izku�
    dotnet --list-sdks
    ```
 
-   Na seznamu mora biti različica `8.0.x`.
+   Na seznamu mora biti različica `10.0.x`.
 
 ### 2. Prenesi projekt
 
@@ -61,14 +61,14 @@ Podatki o parkiriščih se osvežujejo v ozadju iz javnih virov JP LPT. Za prido
 
 ## Odpravljanje pogostih težav
 
-- **`dotnet` ni prepoznan:** preveri, da si namestil .NET 8 SDK, nato zapri in ponovno odpri PowerShell.
+- **`dotnet` ni prepoznan:** preveri, da si namestil .NET 10 SDK, nato zapri in ponovno odpri PowerShell.
 - **Projekt se ne zažene iz trenutne mape:** z ukazom `cd` pojdi v mapo, v kateri je `SmartPark.csproj`.
 - **Naslova `localhost:5143` ni mogoče odpreti:** preveri naslov, ki ga je izpisal `dotnet run`; aplikacija se lahko zažene na drugem prostem naslovu.
 - **Obnova knjižnic ne uspe:** preveri internetno povezavo in ponovno zaženi `dotnet restore`.
 
 ## Tehnologije
 
-- C# in ASP.NET Core MVC (.NET 8)
+- C# in ASP.NET Core MVC (.NET 10)
 - Entity Framework Core in SQLite za lokalni razvoj
 - SQL Server za okolja, ki ga uporabljajo
 - ASP.NET Core Identity
