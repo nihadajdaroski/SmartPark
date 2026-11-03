@@ -21,7 +21,7 @@ namespace SmartPark.Controllers.Admin
         {
             var placila = await _context.Placila
                 .Include(p => p.Rezervacija)
-                    .ThenInclude(r => r.Parkirisce)
+                    .ThenInclude(r => r!.Parkirisce)
                 .OrderByDescending(p => p.Datum)
                 .ToListAsync();
 

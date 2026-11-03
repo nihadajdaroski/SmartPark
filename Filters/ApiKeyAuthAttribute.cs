@@ -23,7 +23,8 @@ namespace SmartPark.Filters
             var configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
             var apiKey = configuration.GetValue<string>("ApiKey");
 
-            if (!apiKey.Equals(potentialApiKey))
+            if (string.IsNullOrEmpty(apiKey)
+                || !string.Equals(apiKey, potentialApiKey.ToString(), StringComparison.Ordinal))
             {
                 context.Result = new UnauthorizedResult(); // 401
                 return;
