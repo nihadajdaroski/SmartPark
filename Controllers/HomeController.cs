@@ -19,7 +19,7 @@ public class HomeController : Controller
     [AllowAnonymous] // anonimni uporabniki lahko vidijo redirect
     public async Task<IActionResult> Index()
     {
-        if (!User.Identity.IsAuthenticated)
+        if (User.Identity?.IsAuthenticated != true)
         {
             // Če ni prijavljen, ga preusmeri na login
             return RedirectToPage("/Account/Login", new { area = "Identity" });
