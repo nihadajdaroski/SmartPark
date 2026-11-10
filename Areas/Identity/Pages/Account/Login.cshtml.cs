@@ -113,7 +113,7 @@ namespace SmartPark.Areas.Identity.Pages.Account
                     Input.Email,
                     Input.Password,
                     Input.RememberMe,
-                    lockoutOnFailure: false);
+                    lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
