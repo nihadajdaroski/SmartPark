@@ -10,11 +10,16 @@ namespace SmartPark.Controllers
     {
         private readonly SmartParkContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<PlacilaController> _logger;
 
-        public PlacilaController(SmartParkContext context, UserManager<ApplicationUser> userManager)
+        public PlacilaController(
+            SmartParkContext context,
+            UserManager<ApplicationUser> userManager,
+            ILogger<PlacilaController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -73,8 +78,8 @@ namespace SmartPark.Controllers
             }
             catch (Exception ex)
             {
-                // ključ: vedno JSON (da front-end ne pade na r.json())
-                return StatusCode(500, new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Failed to create a payment for reservation {ReservationId}.", request?.rezervacijaId);
+                return StatusCode(500, new { success = false, message = "Pri obdelavi plačila je prišlo do napake." });
             }
         }
     }

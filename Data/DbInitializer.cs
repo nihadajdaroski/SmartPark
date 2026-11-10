@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +14,7 @@ public static class DbInitializer
         using var scope = services.CreateScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
         var roles = new[] { "Administrator", "Manager", "Staff" };
         foreach (var role in roles)
@@ -45,6 +48,7 @@ public static class DbInitializer
                 }
             }
 
+            await SeedBootstrapAdministratorAsync(userManager, configuration);
             return;
         }
 
@@ -64,6 +68,55 @@ public static class DbInitializer
 
         if (!await userManager.IsInRoleAsync(admin, "Administrator"))
             EnsureIdentitySuccess(await userManager.AddToRoleAsync(admin, "Administrator"), "Assigning the local demo administrator role");
+    }
+
+    private static async Task SeedBootstrapAdministratorAsync(
+        UserManager<ApplicationUser> userManager,
+        IConfiguration configuration)
+    {
+        var email = configuration["BootstrapAdmin:Email"];
+        var password = configuration["BootstrapAdmin:Password"];
+
+        if (string.IsNullOrWhiteSpace(email) && string.IsNullOrWhiteSpace(password))
+            return;
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            throw new InvalidOperationException(
+                "Both BootstrapAdmin:Email and BootstrapAdmin:Password must be configured together.");
+
+        email = email.Trim();
+        if (!new EmailAddressAttribute().IsValid(email))
+            throw new InvalidOperationException("BootstrapAdmin:Email must be a valid email address.");
+
+        if (string.Equals(email, "admin@smartpark.local", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(
+                "The Development demo administrator cannot be used as the Production administrator.");
+
+        var existingUser = await userManager.FindByEmailAsync(email);
+        if (existingUser is not null)
+        {
+            if (!await userManager.IsInRoleAsync(existingUser, "Administrator"))
+                throw new InvalidOperationException(
+                    "The configured bootstrap email already belongs to a non-administrator account.");
+
+            return;
+        }
+
+        var administrator = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            FirstName = "SmartPark",
+            LastName = "Administrator"
+        };
+
+        EnsureIdentitySuccess(
+            await userManager.CreateAsync(administrator, password),
+            "Creating the Production administrator");
+        EnsureIdentitySuccess(
+            await userManager.AddToRoleAsync(administrator, "Administrator"),
+            "Assigning the Production administrator role");
     }
 
     private static void EnsureIdentitySuccess(IdentityResult result, string operation)

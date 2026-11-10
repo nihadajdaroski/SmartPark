@@ -59,6 +59,15 @@ Uporabljaj ta račun samo za lokalni demo. Če spremeniš ali izbrišeš lokalno
 
 Podatki o parkiriščih se osvežujejo v ozadju iz javnih virov JP LPT. Za pridobivanje svežih podatkov potrebuješ internetno povezavo. Če vir ni dosegljiv, aplikacija uporabi nadomestne podatke, kadar so na voljo.
 
+## Opombe za strežniško okolje
+
+- V ne-razvojnem okolju aplikacija uporablja SQL Server in ob zagonu uporabi čakajoče EF Core migracije. Povezavo podaj prek okoljske spremenljivke `ConnectionStrings__SmartParkContext`; uporabniški račun mora imeti pravice za izvedbo migracij.
+- Za varen prvi administratorski račun pred prvim zagonom nastavi `BootstrapAdmin__Email` in `BootstrapAdmin__Password` v zaščiteni konfiguracijski datoteki zunaj repozitorija. Aplikacija ustvari administratorja samo, če račun še ne obstaja. Uporabi močno, unikatno geslo; po uspešnem prvem zagonu odstrani obe bootstrap vrednosti in ponovno zaženi storitev. Demo račun iz lokalnega razvoja ni primeren za strežnik.
+- Pri Nginxu naj Kestrel posluša samo na loopback naslovu. Nginx mora nastaviti `X-Forwarded-For` in `X-Forwarded-Proto`; aplikacija zaupa posredovanim glavam samo od lokalnega proxyja.
+- `/health/live` preveri, ali aplikacija odgovarja, `/health/ready` pa preveri tudi povezavo z bazo. Swagger je na voljo samo v razvojnem okolju.
+- Po petih zaporednih neuspešnih prijavah Identity zaklene račun za 15 minut. Za potrjevanje e-pošte in ponastavitev gesla ni konfiguriran SMTP pošiljatelj; te funkcije niso pripravljene za uporabo na strežniku.
+- Plačila so simulirana in ne izvajajo bančnih transakcij.
+
 ## Odpravljanje pogostih težav
 
 - **`dotnet` ni prepoznan:** preveri, da si namestil .NET 10 SDK, nato zapri in ponovno odpri PowerShell.
