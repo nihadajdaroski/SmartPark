@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<SmartPark.Models.Parkirisce>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Domov";
@@ -209,7 +210,7 @@
 <script>
     var map = L.map('map', { maxBoundsViscosity: 1.0 }).setView([46.0511, 14.5051], 17);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=@Uri.EscapeDataString(Configuration["Stadia:ApiKey"] ?? "")', {
         attribution: '&copy; Stadia Maps &copy; OSM',
         maxZoom: 20
     }).addTo(map);
