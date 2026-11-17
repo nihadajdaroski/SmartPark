@@ -497,7 +497,12 @@
     }
 
     parkirisca.forEach(function (p) {
-        if (Number.isFinite(p.Latitude) && Number.isFinite(p.Longitude)) {
+        const hasValidCoordinates =
+            Number.isFinite(p.Latitude) && Number.isFinite(p.Longitude) &&
+            p.Latitude >= 45.4 && p.Latitude <= 47.1 &&
+            p.Longitude >= 13.3 && p.Longitude <= 16.7;
+
+        if (hasValidCoordinates) {
             const hasSpaces = Array.isArray(p.ParkirnaMesta);
             const totalSpaces = hasSpaces ? p.ParkirnaMesta.length : Math.max(Number(p.SteviloMest) || 0, 0);
             const availableSpaces = hasSpaces
@@ -541,8 +546,6 @@
         );
 
         map.fitBounds(parkingBounds, { padding: [24, 24], maxZoom: 17 });
-        map.setMaxBounds(parkingBounds);
-        map.setMinZoom(map.getZoom());
     }
 
     function applyFilters() {

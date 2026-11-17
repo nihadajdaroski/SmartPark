@@ -78,6 +78,9 @@ public sealed class LptParkingProvider
             !double.TryParse(coordinates.Groups["lng"].Value, out var longitude))
             return null;
 
+        if (!SloveniaBounds.Contains(latitude, longitude))
+            return null;
+
         var capacityMatch = Regex.Match(
             html,
             @"Na\s+parkirišču\s+je\s+(?<capacity>\d+)\s+parkirnih\s+mest",

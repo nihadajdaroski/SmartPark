@@ -93,7 +93,7 @@ namespace SmartPark.Data
                 if (e.TryGetProperty("lon", out var lonElem)) lon = lonElem.GetDouble();
                 else if (e.TryGetProperty("center", out var center2) && center2.TryGetProperty("lon", out var lonC)) lon = lonC.GetDouble();
 
-                if (lat == 0 || lon == 0) continue;
+                if (!SloveniaBounds.Contains(lat, lon)) continue;
 
                 string naslov = "Parkirišče";
                 int steviloMest = 0;

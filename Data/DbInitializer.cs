@@ -235,7 +235,11 @@ public static class DbInitializer
 
     private static async Task SeedDemoParkingAsync(SmartParkContext ctx)
     {
-        if (await ctx.Parkirisca.AnyAsync())
+        var coordinates = await ctx.Parkirisca
+            .Select(p => new { p.Latitude, p.Longitude })
+            .ToListAsync();
+
+        if (coordinates.Any(c => SloveniaBounds.Contains(c.Latitude, c.Longitude)))
             return;
 
         var parking = new Parkirisce
@@ -263,6 +267,6 @@ public static class DbInitializer
         }
 
         await ctx.SaveChangesAsync();
-        Console.WriteLine("Seeded local demo parking because Overpass was unavailable.");
+        Console.WriteLine("Seeded local demo parking because no valid parking coordinates exist yet.");
     }
 }
