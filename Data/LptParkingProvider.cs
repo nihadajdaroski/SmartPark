@@ -74,8 +74,16 @@ public sealed class LptParkingProvider
             RegexOptions.IgnoreCase);
 
         if (!coordinates.Success ||
-            !double.TryParse(coordinates.Groups["lat"].Value, out var latitude) ||
-            !double.TryParse(coordinates.Groups["lng"].Value, out var longitude))
+            !double.TryParse(
+                coordinates.Groups["lat"].Value,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var latitude) ||
+            !double.TryParse(
+                coordinates.Groups["lng"].Value,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var longitude))
             return null;
 
         if (!SloveniaBounds.Contains(latitude, longitude))

@@ -233,40 +233,43 @@ public static class DbInitializer
         await ctx.SaveChangesAsync(cancellationToken);
     }
 
+    private const string LegacyDemoNaslov = "Kongresni trg, Ljubljana";
+
     private static async Task SeedDemoParkingAsync(SmartParkContext ctx)
     {
-        var coordinates = await ctx.Parkirisca
-            .Select(p => new { p.Latitude, p.Longitude })
+        var existing = await ctx.Parkirisca
+            .Include(p => p.ParkirnaMesta)
             .ToListAsync();
 
-        if (coordinates.Any(c => SloveniaBounds.Contains(c.Latitude, c.Longitude)))
+        if (existing.Any(p => p.Naslov != LegacyDemoNaslov && SloveniaBounds.Contains(p.Latitude, p.Longitude)))
             return;
 
-        var parking = new Parkirisce
+        var legacyDemo = existing.FirstOrDefault(p => p.Naslov == LegacyDemoNaslov);
+        if (legacyDemo is not null && !await ctx.Rezervacije.AnyAsync(r => r.ParkirisceId == legacyDemo.Id))
         {
-            Naslov = "Kongresni trg, Ljubljana",
-            SteviloMest = 20,
-            CenaNaUro = 1.50m,
-            DelovniCas = "00:00–24:00",
-            Latitude = 46.0502,
-            Longitude = 14.5058
-        };
+            ctx.Parkirisca.Remove(legacyDemo);
+            await ctx.SaveChangesAsync();
+        }
 
-        ctx.Parkirisca.Add(parking);
-        await ctx.SaveChangesAsync();
-
-        for (var i = 1; i <= parking.SteviloMest; i++)
+        foreach (var parking in FallbackParking.Create())
         {
-            ctx.ParkirnaMesta.Add(new ParkirnoMesto
+            ctx.Parkirisca.Add(parking);
+            await ctx.SaveChangesAsync();
+
+            var spaces = Math.Min(Math.Max(parking.SteviloMest, 1), 200);
+            for (var i = 1; i <= spaces; i++)
             {
-                ParkirisceId = parking.Id,
-                Stevilka = i,
-                Zasedeno = false,
-                Tip = TipMesta.Navadno
-            });
+                ctx.ParkirnaMesta.Add(new ParkirnoMesto
+                {
+                    ParkirisceId = parking.Id,
+                    Stevilka = i,
+                    Zasedeno = false,
+                    Tip = TipMesta.Navadno
+                });
+            }
         }
 
         await ctx.SaveChangesAsync();
-        Console.WriteLine("Seeded local demo parking because no valid parking coordinates exist yet.");
+        Console.WriteLine("Seeded fallback parking data because no valid parking coordinates exist yet.");
     }
 }
