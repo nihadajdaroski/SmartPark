@@ -11,11 +11,13 @@ namespace SmartPark.Controllers
     {
         private readonly SmartParkContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ParkirisceCache _parkirisceCache;
 
-        public RezervacijeController(SmartParkContext context, UserManager<ApplicationUser> userManager)
+        public RezervacijeController(SmartParkContext context, UserManager<ApplicationUser> userManager, ParkirisceCache parkirisceCache)
         {
             _context = context;
             _userManager = userManager;
+            _parkirisceCache = parkirisceCache;
         }
 
         [HttpGet]
@@ -138,6 +140,7 @@ namespace SmartPark.Controllers
 
             _context.Rezervacije.Add(rezervacija);
             await _context.SaveChangesAsync();
+            await _parkirisceCache.InvalidateAsync();
 
             return Json(new { success = true, rezervacijaId = rezervacija.Id });
         }
@@ -163,6 +166,7 @@ namespace SmartPark.Controllers
 
             _context.Rezervacije.Remove(rez);
             await _context.SaveChangesAsync();
+            await _parkirisceCache.InvalidateAsync();
 
             return RedirectToAction(nameof(Index));
         }
